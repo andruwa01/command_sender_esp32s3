@@ -1,6 +1,6 @@
 sat_id: 57202
 sat_name: OBJECT AN
-transactions_count: 3
+transactions_count: 2
 passes_count: 13
 #1 start 09.02.2024 20:39 end 09.02.2024 20:51
 startAz: 164.540000

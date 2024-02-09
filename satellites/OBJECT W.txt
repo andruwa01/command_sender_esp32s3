@@ -1,6 +1,6 @@
 sat_id: 57186
 sat_name: OBJECT W
-transactions_count: 4
+transactions_count: 3
 passes_count: 16
 #1 start 11.02.2024 10:28 end 11.02.2024 10:40
 startAz: 8.300000

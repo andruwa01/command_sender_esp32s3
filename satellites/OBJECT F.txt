@@ -1,6 +1,6 @@
 sat_id: 54687
 sat_name: OBJECT F
-transactions_count: 15
+transactions_count: 14
 passes_count: 12
 #1 start 10.02.2024 16:20 end 10.02.2024 16:31
 startAz: 8.140000

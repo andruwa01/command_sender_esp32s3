@@ -1,6 +1,6 @@
 sat_id: 57191
 sat_name: OBJECT AB
-transactions_count: 9
+transactions_count: 8
 passes_count: 13
 #1 start 09.02.2024 20:39 end 09.02.2024 20:51
 startAz: 165.450000

@@ -1,6 +1,6 @@
 sat_id: 58665
 sat_name: OBJECT P
-transactions_count: 8
+transactions_count: 7
 passes_count: 20
 #1 start 09.02.2024 22:11 end 09.02.2024 22:23
 startAz: 182.930000

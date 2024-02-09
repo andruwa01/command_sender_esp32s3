@@ -15,7 +15,7 @@ def initialize_port():
 
 # creating file, if it does not exist and write to it
 def create_file_by_list(list_for_file):
-    if(len(list_for_file) == 0):
+    if(len(list_for_file) == 0 or list_for_file[0] == 'END_OF_THE_FILE\n'):
         print('ERROR! YOU TRY TO CREATE FILE FROM EMPTY STRING')
         return
     string_with_name = list_for_file[1]

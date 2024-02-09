@@ -1,6 +1,6 @@
 sat_id: 57183
 sat_name: OBJECT T
-transactions_count: 2
+transactions_count: 1
 passes_count: 9
 #1 start 09.02.2024 20:16 end 09.02.2024 20:28
 startAz: 152.150000

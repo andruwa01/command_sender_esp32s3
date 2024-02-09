@@ -1,6 +1,6 @@
 sat_id: 57205
 sat_name: OBJECT AR
-transactions_count: 12
+transactions_count: 11
 passes_count: 13
 #1 start 09.02.2024 20:19 end 09.02.2024 20:31
 startAz: 152.550000

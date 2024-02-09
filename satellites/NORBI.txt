@@ -1,7 +1,7 @@
 sat_id: 46494
 sat_name: NORBI
-transactions_count: 1
-passes_count: 13
+transactions_count: 0
+passes_count: 14
 #1 start 11.02.2024 03:57 end 11.02.2024 04:09
 startAz: 9.660000
 endAz: 208.970000
@@ -119,3 +119,12 @@ maxAz: 289.650000
 maxAzCompass: WNW
 maxEl: 56.660000
 maxUTC: 19.02.2024 04:00
+#14 start 19.02.2024 14:41 end 19.02.2024 14:53
+startAz: 178.290000
+endAz: 341.870000
+startAzCompass: S
+endAzCompass: NNW
+maxAz: 261.610000
+maxAzCompass: W
+maxEl: 48.130000
+maxUTC: 19.02.2024 14:47

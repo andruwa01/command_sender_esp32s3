@@ -1,6 +1,6 @@
 sat_id: 57208
 sat_name: OBJECT AU
-transactions_count: 11
+transactions_count: 10
 passes_count: 18
 #1 start 09.02.2024 21:12 end 09.02.2024 21:24
 startAz: 182.460000

@@ -1,6 +1,6 @@
 sat_id: 57170
 sat_name: OBJECT E
-transactions_count: 13
+transactions_count: 12
 passes_count: 14
 #1 start 12.02.2024 10:25 end 12.02.2024 10:37
 startAz: 8.520000

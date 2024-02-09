@@ -1,6 +1,6 @@
 sat_id: 57169
 sat_name: OBJECT D
-transactions_count: 14
+transactions_count: 13
 passes_count: 14
 #1 start 12.02.2024 10:25 end 12.02.2024 10:37
 startAz: 8.510000

@@ -1,6 +1,6 @@
 sat_id: 57200
 sat_name: OBJECT AL
-transactions_count: 10
+transactions_count: 9
 passes_count: 16
 #1 start 11.02.2024 10:26 end 11.02.2024 10:38
 startAz: 8.690000
