@@ -1,0 +1,31 @@
+sat_id: 48082
+sat_name: FEES
+transactions_count: 5
+passes_count: 3
+#1 start 10.02.2024 11:38 end 10.02.2024 11:46
+startAz: 175.160000
+endAz: 341.480000
+startAzCompass: S
+endAzCompass: NNW
+maxAz: 255.560000
+maxAzCompass: W
+maxEl: 44.420000
+maxUTC: 10.02.2024 11:42
+#2 start 11.02.2024 11:15 end 11.02.2024 11:21
+startAz: 155.240000
+endAz: 352.150000
+startAzCompass: SSE
+endAzCompass: N
+maxAz: 75.710000
+maxAzCompass: E
+maxEl: 40.100000
+maxUTC: 11.02.2024 11:18
+#3 start 12.02.2024 00:41 end 12.02.2024 00:46
+startAz: 15.090000
+endAz: 191.890000
+startAzCompass: NNE
+endAzCompass: S
+maxAz: 98.110000
+maxAzCompass: E
+maxEl: 69.380000
+maxUTC: 12.02.2024 00:43
