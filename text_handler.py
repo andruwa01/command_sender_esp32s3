@@ -2,14 +2,14 @@ import time
 import serial
 import os
 
-def initialize_port():
+def initialize_port(timeout_s):
     port_instance = serial.Serial(
     port='/dev/ttyUSB0',
     baudrate=115200,
     bytesize=8,
     stopbits=serial.STOPBITS_ONE,
     parity=serial.PARITY_EVEN,
-    timeout=20,
+    timeout=timeout_s,
     )
     return port_instance
 
@@ -38,7 +38,8 @@ def get_decoded_list_of_satellites_data(serial_port):
         for element in input_list_binary:
             input_list_decoded.append(element.decode())
 
-        print(input_list_decoded)
+        # print(input_list_decoded)
+        print('Get list via HTTP')
         return input_list_decoded
     else:
         print("WARNING! Port IS NOT opened or no data in RX (input) buffer")
@@ -53,7 +54,6 @@ def parse_list_create_files(decoded_satellite_list):
         if (decoded_satellite_list[element_index] == 'END_OF_THE_FILE\n'): 
             last_index = element_index
             satellite_list = decoded_satellite_list[start_index:last_index]
-            # print('NEW LIST:')
             # print(satellite_list)
             create_file_by_list(satellite_list)
             start_index = last_index + 1
