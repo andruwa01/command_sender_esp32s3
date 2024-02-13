@@ -1,0 +1,8 @@
+name=OBJECT W
+norad=57186
+freq=
+bw=
+sf=
+cr=
+sw=
+pl=

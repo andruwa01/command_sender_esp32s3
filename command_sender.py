@@ -28,12 +28,13 @@ def wait_response_from_board(serial_port):
 
 def command_handler(serial_port):
 
-    command_help = 'help'
-    command_update_buffer = 'update buffer'
-    command_get_requests = 'get all'
+    command_help =                      'help'
+    command_update_buffer =             'update buffer'
+    command_get_requests =              'get all'
+    command_push_command_files =        'push command files'
     command_parse_buffer_create_files = 'parse buffer'
-    command_clear_spiffs = 'clear spiffs'
-    command_stop = 'stop'
+    command_clear_spiffs =              'clear spiffs'
+    command_stop =                      'stop'
 
     if(serial_port.is_open):
 
@@ -79,6 +80,10 @@ def command_handler(serial_port):
                 print('command %s sended, size: %i bytes'%(command_binary, number_of_bytes))
 
                 wait_response_from_board(serial_port)
+            
+            elif(command == command_push_command_files):
+                # send command with uart
+                return
 
             elif(command == command_stop):
                 print('ПРОГРАММА ОСТАНОВЛЕНА . . .', end='\n\n')

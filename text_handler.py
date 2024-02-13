@@ -1,4 +1,3 @@
-import time
 import serial
 import os
 
@@ -13,18 +12,54 @@ def initialize_port(timeout_s):
     )
     return port_instance
 
+# def create_commands_file_by_list(list_for_file):
+#     if(len(list_for_file) == 0 or list_for_file[0] == 'END_OF_THE_FILE\n'):
+#         print('ERROR! YOU TRY TO CREATE COMMANDS FILE FROM EMPTY STRING')
+#         return
+#     string_with_name = list_for_file[1]
+#     sat_name = string_with_name.split(' ', 1)[1].strip('\n')
+#     file_name = './satellites/' + str(sat_name) + '.txt'
+#     with open(file_name, 'w') as file:
+#         for line in list_for_file:
+#             file.write(line)
+#     print('%s was created with size: %i bytes' %(file_name, os.path.getsize(file_name)))
+
 # creating file, if it does not exist and write to it
 def create_file_by_list(list_for_file):
     if(len(list_for_file) == 0 or list_for_file[0] == 'END_OF_THE_FILE\n'):
         print('ERROR! YOU TRY TO CREATE FILE FROM EMPTY STRING')
         return
+
+    # print(list_for_file)
+    
     string_with_name = list_for_file[1]
+    string_witd_sat_id = list_for_file[0]
+
     sat_name = string_with_name.split(' ', 1)[1].strip('\n')
-    file_name = './satellites/' + str(sat_name) + '.txt'
-    with open(file_name, 'w') as file:
+    sat_id = string_witd_sat_id.split(' ', 1)[1].strip('\n')
+
+    print(sat_id)
+
+    commands_file_name = './satellites/' + str(sat_name) + '_commands' + '.txt'
+    passes_file_name = './satellites/' + str(sat_name) + '.txt'
+
+    with open(commands_file_name, 'w') as file:
+        file.write('name=%s\n'%(sat_name))
+        file.write('norad=%s\n'%(sat_id))
+        file.write('freq=\n')
+        file.write('bw=\n')
+        file.write('sf=\n')
+        file.write('cr=\n')
+        file.write('sw=\n')
+        file.write('pl=\n')
+
+    with open(passes_file_name, 'w') as file:
         for line in list_for_file:
             file.write(line)
-    print('%s was created with size: %i bytes' %(file_name, os.path.getsize(file_name)))
+    
+    print('%s was created with size: %i bytes'%(commands_file_name, os.path.getsize(commands_file_name)))
+    print('%s was created with size: %i bytes'%(passes_file_name, os.path.getsize(passes_file_name)))
+
 
 def get_decoded_list_of_satellites_data(serial_port): 
     print('Start getting list of satellites data')
@@ -38,7 +73,8 @@ def get_decoded_list_of_satellites_data(serial_port):
         for element in input_list_binary:
             input_list_decoded.append(element.decode())
 
-        # print(input_list_decoded)
+        print(input_list_decoded)
+
         print('Get list via HTTP')
         return input_list_decoded
     else:

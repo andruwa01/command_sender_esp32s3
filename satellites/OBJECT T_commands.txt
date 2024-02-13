@@ -1,0 +1,8 @@
+name=OBJECT T
+norad=57183
+freq=
+bw=
+sf=
+cr=
+sw=
+pl=

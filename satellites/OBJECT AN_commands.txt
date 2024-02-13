@@ -1,0 +1,8 @@
+name=OBJECT AN
+norad=57202
+freq=
+bw=
+sf=
+cr=
+sw=
+pl=

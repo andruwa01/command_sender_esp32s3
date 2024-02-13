@@ -1,17 +1,8 @@
 sat_id: 48082
 sat_name: FEES
-transactions_count: 35
-passes_count: 2
-#1 start 13.02.2024 11:30 end 13.02.2024 11:35
-startAz: 166.190000
-endAz: 345.900000
-startAzCompass: S
-endAzCompass: N
-maxAz: 304.770000
-maxAzCompass: NW
-maxEl: 80.100000
-maxUTC: 13.02.2024 11:32
-#2 start 14.02.2024 00:48 end 14.02.2024 00:52
+transactions_count: 34
+passes_count: 1
+#1 start 14.02.2024 00:48 end 14.02.2024 00:52
 startAz: 11.740000
 endAz: 197.590000
 startAzCompass: N

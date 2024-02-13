@@ -1,0 +1,8 @@
+name=NORBI
+norad=46494
+freq=
+bw=
+sf=
+cr=
+sw=
+pl=

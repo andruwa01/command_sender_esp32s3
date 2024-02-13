@@ -1,0 +1,8 @@
+name=OBJECT F
+norad=54687
+freq=
+bw=
+sf=
+cr=
+sw=
+pl=

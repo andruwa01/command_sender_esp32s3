@@ -1,0 +1,8 @@
+name=FEES
+norad=48082
+freq=
+bw=
+sf=
+cr=
+sw=
+pl=
