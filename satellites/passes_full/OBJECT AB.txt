@@ -1,0 +1,85 @@
+sat_id: 57191
+sat_name: OBJECT AB
+transactions_count: 23
+passes_count: 9
+#1 start 14.02.2024 20:16 end 14.02.2024 20:28
+startAz: 152.300000
+endAz: 350.280000
+startAzCompass: SSE
+endAzCompass: N
+maxAz: 70.720000
+maxAzCompass: ENE
+maxEl: 54.410000
+maxUTC: 14.02.2024 20:22
+#2 start 15.02.2024 20:11 end 15.02.2024 20:23
+startAz: 149.640000
+endAz: 351.090000
+startAzCompass: SE
+endAzCompass: N
+maxAz: 72.430000
+maxAzCompass: ENE
+maxEl: 48.600000
+maxUTC: 15.02.2024 20:17
+#3 start 16.02.2024 20:06 end 16.02.2024 20:18
+startAz: 146.960000
+endAz: 351.870000
+startAzCompass: SE
+endAzCompass: N
+maxAz: 69.000000
+maxAzCompass: ENE
+maxEl: 43.570000
+maxUTC: 16.02.2024 20:12
+#4 start 21.02.2024 10:27 end 21.02.2024 10:38
+startAz: 8.210000
+endAz: 213.460000
+startAzCompass: N
+endAzCompass: SW
+maxAz: 292.610000
+maxAzCompass: WNW
+maxEl: 42.390000
+maxUTC: 21.02.2024 10:33
+#5 start 22.02.2024 10:22 end 22.02.2024 10:34
+startAz: 8.990000
+endAz: 210.690000
+startAzCompass: N
+endAzCompass: SW
+maxAz: 289.600000
+maxAzCompass: WNW
+maxEl: 47.460000
+maxUTC: 22.02.2024 10:28
+#6 start 22.02.2024 21:12 end 22.02.2024 21:23
+startAz: 183.380000
+endAz: 340.500000
+startAzCompass: S
+endAzCompass: NNW
+maxAz: 261.490000
+maxAzCompass: W
+maxEl: 40.080000
+maxUTC: 22.02.2024 21:18
+#7 start 23.02.2024 10:17 end 23.02.2024 10:29
+startAz: 9.760000
+endAz: 207.990000
+startAzCompass: N
+endAzCompass: SSW
+maxAz: 290.110000
+maxAzCompass: WNW
+maxEl: 53.350000
+maxUTC: 23.02.2024 10:23
+#8 start 23.02.2024 21:07 end 23.02.2024 21:19
+startAz: 180.500000
+endAz: 341.590000
+startAzCompass: S
+endAzCompass: NNW
+maxAz: 261.210000
+maxAzCompass: W
+maxEl: 44.960000
+maxUTC: 23.02.2024 21:13
+#9 start 24.02.2024 10:12 end 24.02.2024 10:24
+startAz: 10.530000
+endAz: 205.150000
+startAzCompass: N
+endAzCompass: SSW
+maxAz: 290.030000
+maxAzCompass: WNW
+maxEl: 60.180000
+maxUTC: 24.02.2024 10:18

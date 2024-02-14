@@ -7,6 +7,7 @@
 # -[x] Обновить содержимое файлов всех спутников в spiffs
 
 import text_handler
+import time
 
 def wait_response_from_board(serial_port):
     if(serial_port.is_open):
@@ -55,18 +56,19 @@ def command_handler(serial_port):
                 print("{:20s} -> (для всех спутников) сделать запросы на сервер за новыми данными, запись их в spiffs".format(command_get_requests))
                 print("{:20s} -> (для всех спутников) получить данные из spiffs, записать их в буфер".format(command_update_buffer))
                 print("{:20s} -> создать файлы с данными по текущему имеющемуся буферу".format(command_parse_buffer_create_files))
+                print("{:20s} -> отправить данные с указанными параметрами в esp32, затем записать их в spiffs".format(command_push_command_files))
                 print("{:20s} -> выйти из программы".format(command_stop))
 
                 print('<========================================================================>', end='\n\n')
             elif(command == command_get_requests):
                 number_of_bytes = serial_port.write(command_binary)
-                print('command %s sended, size: %i bytes'%(command_binary, number_of_bytes))
+                print('command %s sent, size: %i bytes'%(command_binary, number_of_bytes))
 
                 wait_response_from_board(serial_port)
 
             elif(command == command_update_buffer):
                 number_of_bytes = serial_port.write(command_binary)
-                print('command %s sended, size: %i bytes'%(command_binary, number_of_bytes))
+                print('command %s sent, size: %i bytes'%(command_binary, number_of_bytes))
                 satellites_decoded_list = text_handler.get_decoded_list_of_satellites_data(serial_port)
 
                 wait_response_from_board(serial_port) 
@@ -77,13 +79,44 @@ def command_handler(serial_port):
 
             elif(command == command_clear_spiffs):
                 number_of_bytes = serial_port.write(command_binary)
-                print('command %s sended, size: %i bytes'%(command_binary, number_of_bytes))
+                print('command %s sent, size: %i bytes'%(command_binary, number_of_bytes))
 
                 wait_response_from_board(serial_port)
             
             elif(command == command_push_command_files):
-                # send command with uart
-                return
+                number_of_bytes = serial_port.write(command_binary)
+                print('command %s sent, size: %i bytes:'%(command_binary, number_of_bytes))
+
+                # give a time to UART RX of ESP32 to read command. 
+                # else command and data is mixed and on the ESP32 side reads inproper way
+                time.sleep(1)
+
+                # clear buffer don't sent command with data
+                serial_port.reset_output_buffer()
+
+                # send data
+                data_from_command_file = ['']
+                command_file = open('./satellites/passes_user_input/FEES_commands.txt', 'r')
+                data_from_command_file = command_file.readlines()
+
+                print(data_from_command_file)
+
+                data_from_command_file_binary = ['']
+
+                for item in data_from_command_file:
+                    data_from_command_file_binary.append(item.encode())
+
+                print(data_from_command_file_binary)
+
+                # data_example_string = 'name: NORBI\nsatid: 0000\n'
+                # data_example_string_binary = data_example_string.encode()
+
+                # FIX ME
+                data_bytes = serial_port.write(data_from_command_file_binary)
+                print("data: %s sent, size: %i bytes"%(data_from_command_file_binary, data_bytes))
+
+
+                wait_response_from_board(serial_port)
 
             elif(command == command_stop):
                 print('ПРОГРАММА ОСТАНОВЛЕНА . . .', end='\n\n')

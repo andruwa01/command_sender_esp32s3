@@ -1,6 +1,9 @@
-def get_default_fp():
 
-    fp = open('./testfile.txt', 'w')
+default_file_path = './satellites/testfile.txt'
+
+def initialize_default_file():
+
+    fp = open(default_file_path, 'w')
 
     fp.write('Car: mers\n')
     fp.write('Color: Black\n')
@@ -8,5 +11,3 @@ def get_default_fp():
     default_fp = fp.tell()
 
     fp.close()
-
-    return default_fp

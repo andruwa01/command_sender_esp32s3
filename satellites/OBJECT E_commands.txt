@@ -1,8 +1,0 @@
-name=OBJECT E
-norad=57170
-freq=
-bw=
-sf=
-cr=
-sw=
-pl=

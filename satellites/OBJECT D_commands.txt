@@ -1,8 +1,0 @@
-name=OBJECT D
-norad=57169
-freq=
-bw=
-sf=
-cr=
-sw=
-pl=

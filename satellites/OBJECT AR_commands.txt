@@ -1,8 +1,0 @@
-name=OBJECT AR
-norad=57205
-freq=
-bw=
-sf=
-cr=
-sw=
-pl=

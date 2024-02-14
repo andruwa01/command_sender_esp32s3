@@ -1,8 +1,0 @@
-name=JILIN-01 GAOFEN 2F
-norad=49338
-freq=
-bw=
-sf=
-cr=
-sw=
-pl=

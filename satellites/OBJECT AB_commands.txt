@@ -1,8 +1,0 @@
-name=OBJECT AB
-norad=57191
-freq=
-bw=
-sf=
-cr=
-sw=
-pl=
