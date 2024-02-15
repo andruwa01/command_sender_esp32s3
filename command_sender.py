@@ -8,6 +8,43 @@
 
 import text_handler
 import time
+import os
+
+def send_command_file(passes_user_input_folder_path, file_name,serial_port):
+    file_path = passes_user_input_folder_path + '/' + file_name 
+
+    # send data for one satellite
+    data_from_command_file = []
+    command_file = open(file_path, 'r')
+    data_from_command_file = command_file.readlines()
+
+    # print(data_from_command_file)
+
+    data_from_command_file_binary = []
+
+    for item in data_from_command_file:
+        data_from_command_file_binary.append(item.encode())
+
+    # print(data_from_command_file_binary)
+
+    # data_example_string = 'name: NORBI\nsatid: 0000\n'
+    # data_example_string_binary = data_example_string.encode()
+
+    # send content from one file to uart tx
+    data_bytes = 0
+    for data_element in data_from_command_file_binary:
+        data_bytes_element = serial_port.write(data_element)
+        data_bytes += data_bytes_element
+
+    print("data: %s sent, size: %i bytes"%(data_from_command_file_binary, data_bytes))
+
+    # serial_port.cancel_write()
+    # serial_port.reset_output_buffer()
+
+    # wait_response_from_board(serial_port)
+    # time.sleep(5)
+
+
 
 def wait_response_from_board(serial_port):
     if(serial_port.is_open):
@@ -19,7 +56,6 @@ def wait_response_from_board(serial_port):
             print('uart get something...')
         
         print('Got response!')
-
         # serial_port.reset_input_buffer()
         # serial_port.reset_output_buffer()
     else:
@@ -60,6 +96,7 @@ def command_handler(serial_port):
                 print("{:20s} -> выйти из программы".format(command_stop))
 
                 print('<========================================================================>', end='\n\n')
+
             elif(command == command_get_requests):
                 number_of_bytes = serial_port.write(command_binary)
                 print('command %s sent, size: %i bytes'%(command_binary, number_of_bytes))
@@ -91,36 +128,28 @@ def command_handler(serial_port):
                 # else command and data is mixed and on the ESP32 side reads inproper way
                 time.sleep(1)
 
-                # clear buffer don't sent command with data
+                # clear buffer because we don't want send command with data (mix them)
                 serial_port.reset_output_buffer()
 
-                # send data
-                data_from_command_file = ['']
-                command_file = open('./satellites/passes_user_input/FEES_commands.txt', 'r')
-                data_from_command_file = command_file.readlines()
+                #send data for all satellites
+                # passes_full_folder_path = "./satellites/passes_full"
+                passes_user_input_folder_path = "./satellites/passes_user_input"
 
-                print(data_from_command_file)
+                # for file in os.listdir(passes_user_input_folder_path):
 
-                data_from_command_file_binary = ['']
+                file_name_1 = "OBJECT AR_commands.txt"
+                send_command_file(passes_user_input_folder_path, file_name_1, serial_port)
+                # file_name_2 = "JILIN-01 GAOFEN 2F_commands.txt"
+                # send_command_file(passes_user_input_folder_path, file_name_2, serial_port)
 
-                for item in data_from_command_file:
-                    data_from_command_file_binary.append(item.encode())
+                # give time to board to divide two messages
+                time.sleep(1)
 
-                print(data_from_command_file_binary)
-
-                # data_example_string = 'name: NORBI\nsatid: 0000\n'
-                # data_example_string_binary = data_example_string.encode()
-
-                # FIX ME
-                data_bytes = serial_port.write(data_from_command_file_binary)
-                print("data: %s sent, size: %i bytes"%(data_from_command_file_binary, data_bytes))
-
-
+                serial_port.write('END FILES TRANSMISSION'.encode())
                 wait_response_from_board(serial_port)
 
             elif(command == command_stop):
                 print('ПРОГРАММА ОСТАНОВЛЕНА . . .', end='\n\n')
-
                 return
             else:
                 print()

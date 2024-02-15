@@ -1,139 +1,121 @@
 sat_id: 46494
 sat_name: NORBI
-transactions_count: 15
-passes_count: 15
-#1 start 14.02.2024 14:08 end 14.02.2024 14:19
-startAz: 159.660000
-endAz: 347.770000
-startAzCompass: SSE
-endAzCompass: N
-maxAz: 66.730000
-maxAzCompass: ENE
-maxEl: 74.560000
-maxUTC: 14.02.2024 14:13
-#2 start 15.02.2024 03:09 end 15.02.2024 03:21
-startAz: 18.200000
-endAz: 181.140000
-startAzCompass: NNE
-endAzCompass: S
-maxAz: 99.090000
-maxAzCompass: E
-maxEl: 47.490000
-maxUTC: 15.02.2024 03:15
-#3 start 15.02.2024 13:56 end 15.02.2024 14:07
+transactions_count: 0
+passes_count: 13
+#1 start 15.02.2024 13:56 end 15.02.2024 14:07
 startAz: 152.700000
-endAz: 349.910000
+endAz: 349.920000
 startAzCompass: SSE
 endAzCompass: N
-maxAz: 73.430000
+maxAz: 73.650000
 maxAzCompass: ENE
 maxEl: 54.670000
 maxUTC: 15.02.2024 14:01
-#4 start 16.02.2024 13:43 end 16.02.2024 13:55
-startAz: 145.860000
-endAz: 351.970000
+#2 start 16.02.2024 13:44 end 16.02.2024 13:55
+startAz: 145.700000
+endAz: 351.990000
 startAzCompass: SE
 endAzCompass: N
-maxAz: 69.140000
+maxAz: 69.450000
 maxAzCompass: ENE
-maxEl: 40.640000
+maxEl: 40.650000
 maxUTC: 16.02.2024 13:49
-#5 start 18.02.2024 04:07 end 18.02.2024 04:18
-startAz: 8.380000
-endAz: 213.590000
+#3 start 18.02.2024 04:07 end 18.02.2024 04:18
+startAz: 8.400000
+endAz: 213.630000
 startAzCompass: N
 endAzCompass: SW
-maxAz: 292.430000
+maxAz: 293.180000
 maxAzCompass: WNW
-maxEl: 42.210000
+maxEl: 42.180000
 maxUTC: 18.02.2024 04:13
-#6 start 19.02.2024 03:55 end 19.02.2024 04:06
-startAz: 10.390000
-endAz: 206.740000
+#4 start 19.02.2024 03:55 end 19.02.2024 04:06
+startAz: 10.410000
+endAz: 206.690000
 startAzCompass: N
 endAzCompass: SSW
-maxAz: 290.230000
+maxAz: 285.720000
 maxAzCompass: WNW
-maxEl: 56.760000
+maxEl: 56.700000
 maxUTC: 19.02.2024 04:00
-#7 start 19.02.2024 14:41 end 19.02.2024 14:52
-startAz: 178.240000
-endAz: 341.880000
+#5 start 19.02.2024 14:41 end 19.02.2024 14:52
+startAz: 178.200000
+endAz: 341.820000
 startAzCompass: S
 endAzCompass: NNW
-maxAz: 261.680000
+maxAz: 260.060000
 maxAzCompass: W
-maxEl: 48.220000
+maxEl: 48.210000
 maxUTC: 19.02.2024 14:47
-#8 start 20.02.2024 03:42 end 20.02.2024 03:54
+#6 start 20.02.2024 03:42 end 20.02.2024 03:54
 startAz: 12.460000
 endAz: 199.720000
 startAzCompass: N
 endAzCompass: SSW
-maxAz: 278.780000
-maxAzCompass: W
-maxEl: 77.040000
+maxAz: 285.910000
+maxAzCompass: WNW
+maxEl: 77.070000
 maxUTC: 20.02.2024 03:48
-#9 start 20.02.2024 14:29 end 20.02.2024 14:40
-startAz: 171.090000
-endAz: 344.180000
+#7 start 20.02.2024 14:29 end 20.02.2024 14:40
+startAz: 171.080000
+endAz: 344.130000
 startAzCompass: S
 endAzCompass: NNW
-maxAz: 256.070000
+maxAz: 261.360000
 maxAzCompass: W
-maxEl: 66.640000
+maxEl: 66.540000
 maxUTC: 20.02.2024 14:34
-#10 start 21.02.2024 03:30 end 21.02.2024 03:42
-startAz: 14.570000
-endAz: 192.660000
+#8 start 21.02.2024 03:30 end 21.02.2024 03:42
+startAz: 14.590000
+endAz: 192.710000
 startAzCompass: N
 endAzCompass: S
-maxAz: 96.690000
-maxAzCompass: E
-maxEl: 78.890000
+maxAz: 106.480000
+maxAzCompass: ESE
+maxEl: 79.050000
 maxUTC: 21.02.2024 03:36
-#11 start 21.02.2024 14:16 end 21.02.2024 14:28
-startAz: 164.000000
+#9 start 21.02.2024 14:16 end 21.02.2024 14:28
+startAz: 164.030000
 endAz: 346.400000
 startAzCompass: SSE
 endAzCompass: N
-maxAz: 356.910000
-maxAzCompass: N
-maxEl: 88.190000
+maxAz: 144.670000
+maxAzCompass: SE
+maxEl: 89.220000
 maxUTC: 21.02.2024 14:22
-#12 start 22.02.2024 03:18 end 22.02.2024 03:29
-startAz: 16.830000
-endAz: 185.550000
+#10 start 22.02.2024 03:18 end 22.02.2024 03:29
+startAz: 16.730000
+endAz: 185.630000
 startAzCompass: NNE
 endAzCompass: S
-maxAz: 97.960000
+maxAz: 100.030000
 maxAzCompass: E
-maxEl: 57.700000
+maxEl: 57.830000
 maxUTC: 22.02.2024 03:24
-#13 start 22.02.2024 14:04 end 22.02.2024 14:16
-startAz: 156.930000
-endAz: 348.610000
+#11 start 22.02.2024 14:04 end 22.02.2024 14:16
+startAz: 157.020000
+endAz: 348.590000
 startAzCompass: SSE
 endAzCompass: N
-maxAz: 71.920000
+maxAz: 69.590000
 maxAzCompass: ENE
-maxEl: 66.240000
+maxEl: 66.320000
 maxUTC: 22.02.2024 14:10
-#14 start 23.02.2024 03:05 end 23.02.2024 03:17
-startAz: 19.080000
-endAz: 178.370000
+#12 start 23.02.2024 03:05 end 23.02.2024 03:17
+startAz: 19.100000
+endAz: 178.440000
 startAzCompass: NNE
 endAzCompass: S
-maxAz: 98.490000
+maxAz: 99.060000
 maxAzCompass: E
-maxEl: 42.290000
+maxEl: 42.370000
 maxUTC: 23.02.2024 03:11
-#15 start 23.02.2024 13:52 end 23.02.2024 14:03
-startAz: 149.870000
-endAz: 350.720000
+#13 start 23.02.2024 13:52 end 23.02.2024 14:03
+startAz: 149.910000
+endAz: 350.700000
 startAzCompass: SE
 endAzCompass: N
-maxAz: 71.100000
+maxAz: 70.800000
 maxAzCompass: ENE
-maxEl: 48.440000
-maxUTC: 23.02.2024 13:57
+maxEl: 48.550000
+maxUTC: 23.02.2024 13:58

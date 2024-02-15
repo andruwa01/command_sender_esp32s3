@@ -11,7 +11,12 @@ def initialize_port(timeout_s):
     parity=serial.PARITY_EVEN,
     timeout=timeout_s,
     )
+
+    port_instance.reset_input_buffer()
+    port_instance.reset_output_buffer()
+
     return port_instance
+
 
 # def create_commands_file_by_list(list_for_file):
 #     if(len(list_for_file) == 0 or list_for_file[0] == 'END_OF_THE_FILE\n'):
@@ -96,9 +101,14 @@ def create_file_by_list(list_for_file):
         temp_file.write('\n')
        
         # write info about time of passes
+        date_pass_counter = 0
         for element in list_for_file: 
             if element[0] == '#':
-                temp_file.write(element)
+                if date_pass_counter < 9:
+                    temp_file.write(element[0] + '0' + element[1:])
+                    date_pass_counter += 1
+                else:
+                    temp_file.write(element)
 
     os.remove(commands_default_file_path)
     os.rename(temp_file_path, commands_default_file_path)
