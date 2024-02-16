@@ -1,4 +1,0 @@
-sat_id: 48082
-sat_name: FEES
-transactions_count: 4
-passes_count: 0

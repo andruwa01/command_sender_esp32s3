@@ -18,33 +18,34 @@ def send_command_file(passes_user_input_folder_path, file_name,serial_port):
     command_file = open(file_path, 'r')
     data_from_command_file = command_file.readlines()
 
-    # print(data_from_command_file)
+    # clean input buffer 
+    serial_port.reset_input_buffer()
 
     data_from_command_file_binary = []
 
     for item in data_from_command_file:
         data_from_command_file_binary.append(item.encode())
 
-    # print(data_from_command_file_binary)
-
-    # data_example_string = 'name: NORBI\nsatid: 0000\n'
-    # data_example_string_binary = data_example_string.encode()
+    data_bytes = 0
 
     # send content from one file to uart tx
-    data_bytes = 0
+    start_bytes = serial_port.write('START_FILE\n'.encode())
+    data_bytes += start_bytes
+
     for data_element in data_from_command_file_binary:
         data_bytes_element = serial_port.write(data_element)
         data_bytes += data_bytes_element
 
+    end_bytes = serial_port.write('END_FILE\n'.encode())
+    data_bytes += end_bytes
+
+    # give time uart board to switch context
+    # time.sleep(1)
+
     print("data: %s sent, size: %i bytes"%(data_from_command_file_binary, data_bytes))
 
-    # serial_port.cancel_write()
-    # serial_port.reset_output_buffer()
-
-    # wait_response_from_board(serial_port)
-    # time.sleep(5)
-
-
+   # clear data form buffer (to not mix data)
+    serial_port.reset_output_buffer()
 
 def wait_response_from_board(serial_port):
     if(serial_port.is_open):
@@ -56,7 +57,10 @@ def wait_response_from_board(serial_port):
             print('uart get something...')
         
         print('Got response!')
-        # serial_port.reset_input_buffer()
+
+        # erase response from input buffer
+        serial_port.reset_input_buffer()
+
         # serial_port.reset_output_buffer()
     else:
         print("ERROR! Port is not opened")
@@ -124,28 +128,21 @@ def command_handler(serial_port):
                 number_of_bytes = serial_port.write(command_binary)
                 print('command %s sent, size: %i bytes:'%(command_binary, number_of_bytes))
 
-                # give a time to UART RX of ESP32 to read command. 
-                # else command and data is mixed and on the ESP32 side reads inproper way
-                time.sleep(1)
+                wait_response_from_board(serial_port)
 
                 # clear buffer because we don't want send command with data (mix them)
                 serial_port.reset_output_buffer()
-
-                #send data for all satellites
+                
+                # todo send files with full data after get requetst from python
                 # passes_full_folder_path = "./satellites/passes_full"
                 passes_user_input_folder_path = "./satellites/passes_user_input"
 
-                # for file in os.listdir(passes_user_input_folder_path):
-
-                file_name_1 = "OBJECT AR_commands.txt"
-                send_command_file(passes_user_input_folder_path, file_name_1, serial_port)
-                # file_name_2 = "JILIN-01 GAOFEN 2F_commands.txt"
-                # send_command_file(passes_user_input_folder_path, file_name_2, serial_port)
-
-                # give time to board to divide two messages
-                time.sleep(1)
+                for file_name in os.listdir(passes_user_input_folder_path):
+                    send_command_file(passes_user_input_folder_path, file_name, serial_port)
+                    wait_response_from_board(serial_port)
 
                 serial_port.write('END FILES TRANSMISSION'.encode())
+
                 wait_response_from_board(serial_port)
 
             elif(command == command_stop):

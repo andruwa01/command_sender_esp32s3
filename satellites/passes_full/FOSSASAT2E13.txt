@@ -1,4 +1,0 @@
-sat_id: 52776
-sat_name: FOSSASAT2E13
-transactions_count: 5
-passes_count: 0
