@@ -17,20 +17,7 @@ def initialize_port(timeout_s):
 
     return port_instance
 
-
-# def create_commands_file_by_list(list_for_file):
-#     if(len(list_for_file) == 0 or list_for_file[0] == 'END_OF_THE_FILE\n'):
-#         print('ERROR! YOU TRY TO CREATE COMMANDS FILE FROM EMPTY STRING')
-#         return
-#     string_with_name = list_for_file[1]
-#     sat_name = string_with_name.split(' ', 1)[1].strip('\n')
-#     file_name = './satellites/' + str(sat_name) + '.txt'
-#     with open(file_name, 'w') as file:
-#         for line in list_for_file:
-#             file.write(line)
-#     print('%s was created with size: %i bytes' %(file_name, os.path.getsize(file_name)))
-
-# creating file, if it does not exist and write to it
+# creating file (and corresponding directories), if it does not exist and write to it
 def create_file_by_list(list_for_file):
 
     if(len(list_for_file) == 0 or list_for_file[0] == 'END_OF_THE_FILE\n'):

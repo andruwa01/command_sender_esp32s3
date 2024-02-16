@@ -39,9 +39,6 @@ def send_command_file(passes_user_input_folder_path, file_name,serial_port):
     end_bytes = serial_port.write('END_FILE\n'.encode())
     data_bytes += end_bytes
 
-    # give time uart board to switch context
-    # time.sleep(1)
-
     print("data: %s sent, size: %i bytes"%(data_from_command_file_binary, data_bytes))
 
    # clear data form buffer (to not mix data)
@@ -60,8 +57,8 @@ def wait_response_from_board(serial_port):
 
         # erase response from input buffer
         serial_port.reset_input_buffer()
-
-        # serial_port.reset_output_buffer()
+        # erase output buffer commands
+        serial_port.reset_output_buffer()
     else:
         print("ERROR! Port is not opened")
         return
@@ -122,16 +119,35 @@ def command_handler(serial_port):
                 number_of_bytes = serial_port.write(command_binary)
                 print('command %s sent, size: %i bytes'%(command_binary, number_of_bytes))
 
+                # wait response from board about readiness of waiting list of satellites
+                wait_response_from_board(serial_port)
+
+                data_bytes = 0
+
+                # create list of command_names
+                list_of_satellite_command_names = []
+
+                # send list over uart
+                passes_user_input_folder_path = "./satellites/passes_user_input"
+                for file_name in os.listdir(passes_user_input_folder_path):
+                    file_name += '\n'
+                    data_bytes_by_file_name = serial_port.write(file_name.encode())
+                    list_of_satellite_command_names.append(file_name)
+                    data_bytes += data_bytes_by_file_name
+
+                print("data: %s sent, size: %i bytes"%(list_of_satellite_command_names, data_bytes))
+
                 wait_response_from_board(serial_port)
             
             elif(command == command_push_command_files):
                 number_of_bytes = serial_port.write(command_binary)
                 print('command %s sent, size: %i bytes:'%(command_binary, number_of_bytes))
 
-                wait_response_from_board(serial_port)
+                serial_port.reset_output_buffer()
+                # wait_response_from_board(serial_port)
 
                 # clear buffer because we don't want send command with data (mix them)
-                serial_port.reset_output_buffer()
+                # serial_port.reset_output_buffer()
                 
                 # todo send files with full data after get requetst from python
                 # passes_full_folder_path = "./satellites/passes_full"
