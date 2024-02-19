@@ -3,7 +3,7 @@
 # -[x] Получить данные для всех спутников и записать их в соответствующие файлы
 # -[] Получить данные по id спутника и записать их в файл 
 # -[] Получить список спутников с соответствующими id из spiffs
-# -[] *Вести данные (изменения) в spiffs*
+# -[x] *Вести данные (изменения) в spiffs*
 # -[x] Обновить содержимое файлов всех спутников в spiffs
 
 import text_handler
@@ -44,6 +44,16 @@ def send_command_file(passes_user_input_folder_path, file_name,serial_port):
    # clear data form buffer (to not mix data)
     serial_port.reset_output_buffer()
 
+def send_response_to_board(serial_port):
+    if(serial_port.is_open):
+        print('Sending response to board . . .')
+        response_encoded = 'RESPONSE FROM PC'.encode()
+        sended_bytes = serial_port.write(response_encoded)
+        print("data: %s sent, size: %i bytes"%(response_encoded, sended_bytes))
+    else:
+        print("ERROR! Port is not opened")
+        return
+
 def wait_response_from_board(serial_port):
     if(serial_port.is_open):
         print('Wait response from board . . .')
@@ -72,6 +82,7 @@ def command_handler(serial_port):
     command_push_command_files =        'push command files'
     command_parse_buffer_create_files = 'parse buffer'
     command_clear_spiffs =              'clear spiffs'
+    command_get_spiffs_data =           'get spiffs info' 
     command_stop =                      'stop'
 
     if(serial_port.is_open):
@@ -95,7 +106,7 @@ def command_handler(serial_port):
                 print("{:20s} -> создать файлы с данными по текущему имеющемуся буферу".format(command_parse_buffer_create_files))
                 print("{:20s} -> отправить данные с указанными параметрами в esp32, затем записать их в spiffs".format(command_push_command_files))
                 print("{:20s} -> выйти из программы".format(command_stop))
-
+                print("{:20s} -> получить данные о заполненности spiffs".format(command_get_spiffs_data))
                 print('<========================================================================>', end='\n\n')
 
             elif(command == command_get_requests):
@@ -137,6 +148,13 @@ def command_handler(serial_port):
 
                 print("data: %s sent, size: %i bytes"%(list_of_satellite_command_names, data_bytes))
 
+                # serial_port.reset_output_buffer()
+                # serial_port.send_break(1)
+
+                # time.sleep(5)
+
+                # send_response_to_board(serial_port)
+
                 wait_response_from_board(serial_port)
             
             elif(command == command_push_command_files):
@@ -144,7 +162,7 @@ def command_handler(serial_port):
                 print('command %s sent, size: %i bytes:'%(command_binary, number_of_bytes))
 
                 serial_port.reset_output_buffer()
-                # wait_response_from_board(serial_port)
+                wait_response_from_board(serial_port)
 
                 # clear buffer because we don't want send command with data (mix them)
                 # serial_port.reset_output_buffer()
@@ -158,6 +176,17 @@ def command_handler(serial_port):
                     wait_response_from_board(serial_port)
 
                 serial_port.write('END FILES TRANSMISSION'.encode())
+
+                wait_response_from_board(serial_port)
+            
+            elif(command == command_get_spiffs_data):
+                number_of_bytes = serial_port.write(command_binary)
+                print('command %s sent, size: %i bytes:'%(command_binary, number_of_bytes))
+
+                # get data from uart
+                spiffs_info = serial_port.readline().decode()
+
+                print('\nданные о spiffs: ' + spiffs_info)
 
                 wait_response_from_board(serial_port)
 
