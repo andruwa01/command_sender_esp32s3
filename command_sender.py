@@ -14,16 +14,16 @@ def send_file_over_uart(folder_of_file, file_name, serial_port):
     file_path = folder_of_file + '/' + file_name 
 
     # send data for one satellite
-    data_from_command_file = []
+    data_from_file = []
     with open(file_path, 'r') as command_file:
-        data_from_command_file = command_file.readlines()
+        data_from_file = command_file.readlines()
 
     # clean input buffer 
     serial_port.reset_input_buffer()
 
     data_from_file_binary = []
 
-    for item in data_from_command_file:
+    for item in data_from_file:
         data_from_file_binary.append(item.encode())
 
     # sended bytes counter
@@ -141,11 +141,15 @@ def command_handler(serial_port):
             list_of_satellite_command_names = []
 
             # send list over uart
-            passes_user_input_folder_path = "./satellites/passes_user_input"
-            for file_name in os.listdir(passes_user_input_folder_path):
-                file_name += '\n'
-                data_bytes_by_file_name = serial_port.write(file_name.encode())
-                list_of_satellite_command_names.append(file_name)
+            # passes_user_input_folder_path = "./satellites/passes_user_input"
+            passes_full_pc_responses = './satellites/passes_full_pc_responses'
+
+            # for file_name in os.listdir(passes_user_input_folder_path):
+            for file in os.listdir(passes_full_pc_responses):
+                file = file.strip('.txt') + '\n'
+                # file += '\n'
+                data_bytes_by_file_name = serial_port.write(file.encode())
+                list_of_satellite_command_names.append(file)
                 data_bytes += data_bytes_by_file_name
 
             print("data: %s sent, size: %i bytes"%(list_of_satellite_command_names, data_bytes))
@@ -170,8 +174,8 @@ def command_handler(serial_port):
             # passes_full_folder_path = "./satellites/passes_full"
             passes_user_input_folder_path = "./satellites/passes_user_input"
 
-            for file_name in os.listdir(passes_user_input_folder_path):
-                send_file_over_uart(passes_user_input_folder_path, file_name, serial_port)
+            for file in os.listdir(passes_user_input_folder_path):
+                send_file_over_uart(passes_user_input_folder_path, file, serial_port)
                 wait_response_from_board(serial_port)
 
             serial_port.write('END FILES TRANSMISSION'.encode())
@@ -209,9 +213,11 @@ def command_handler(serial_port):
             passes_folder = './satellites/passes_full_pc_responses'
 
             # iterate over files
-            for file_name in os.listdir(passes_folder):
-                print(file_name)
-                send_file_over_uart(passes_folder, file_name, serial_port)
+            for file in os.listdir(passes_folder):
+                # test if
+                # if (file_name == 'FEES.txt' or file_name == 'FOSSASAT2E13.txt' or file_name == 'JILIN-01 GAOFEN 2F.txt'):
+                print(file)
+                send_file_over_uart(passes_folder, file, serial_port)
                 wait_response_from_board(serial_port)
 
             serial_port.write('END FILES TRANSMISSION'.encode())

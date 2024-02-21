@@ -79,9 +79,10 @@ def perform_http_requests(request_options_file):
 
             with open(passes_file_path, 'w') as file:
 
-                info_values_string = 'sat_id: %i\nsat_name: %s\ntransactions_count: %i\npasses_count: %i\n'%(
-                    sat_id,
+                # info_values_string = 'sat_id: %i\nsat_name: %s\ntransactions_count: %i\npasses_count: %i\n'%(
+                info_values_string = 'sat_name:%s\nsat_id: %i\ntransactions_count: %i\npasses_count: %i\n'%(
                     sat_name,
+                    sat_id,
                     transactions_count,
                     passes_counter
                 )
