@@ -123,7 +123,7 @@ def get_decoded_list_of_satellites_data(serial_port):
 
         print(input_list_decoded)
 
-        print('Get list via HTTP')
+        print('Got list from spiffs')
         return input_list_decoded
     else:
         print("WARNING! Port IS NOT opened or no data in RX (input) buffer")

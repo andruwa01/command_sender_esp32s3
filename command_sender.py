@@ -10,8 +10,10 @@ import text_handler
 import http_handler
 import os
 
-def send_file_over_uart(folder_of_file, file_name, serial_port):
-    file_path = folder_of_file + '/' + file_name 
+# TODO change this function on 
+def send_file_over_uart(file_path, serial_port):
+# def send_file_over_uart(folder_of_file, file_name, serial_port):
+    # file_path = folder_of_file + '/' + file_name 
 
     # send data for one satellite
     data_from_file = []
@@ -78,9 +80,9 @@ def command_handler(serial_port):
 
     command_help =                      'help'
     command_update_buffer =             'update buffer'
+    command_parse_buffer_create_files = 'parse buffer'
     command_get_requests =              'get all'
     command_push_command_files =        'push command files'
-    command_parse_buffer_create_files = 'parse buffer'
     command_clear_spiffs =              'clear spiffs'
     command_get_spiffs_data =           'get spiffs info' 
     command_stop =                      'stop'
@@ -120,7 +122,28 @@ def command_handler(serial_port):
         elif(command == command_update_buffer):
             number_of_bytes = serial_port.write(command_binary)
             print('command %s sent, size: %i bytes'%(command_binary, number_of_bytes))
-            satellites_decoded_list = text_handler.get_decoded_list_of_satellites_data(serial_port)
+
+            # test block of code
+
+            # wait signal from board that it got command 
+            wait_response_from_board(serial_port)
+            request_options_file_default = './satellites/requests_input_options.txt'           
+            # TODO rewrite this part to work with it
+            send_file_over_uart(request_options_file_default, serial_port)
+
+            # wait signal from board that it read input_options.txt file
+            wait_response_from_board(serial_port)
+            serial_port.write('END FILES TRANSMISSION'.encode())
+
+            # wait response from board that it got finished managing file
+            wait_response_from_board(serial_port)
+
+            # end test block of code
+
+            # get list of satellites names so we could work with it next
+            # satellites_decoded_list = text_handler.get_decoded_list_of_satellites_data(serial_port)
+
+            # perform 
 
             wait_response_from_board(serial_port) 
 
@@ -175,7 +198,9 @@ def command_handler(serial_port):
             passes_user_input_folder_path = "./satellites/passes_user_input"
 
             for file in os.listdir(passes_user_input_folder_path):
-                send_file_over_uart(passes_user_input_folder_path, file, serial_port)
+                #TODO change this function
+                file_path = passes_user_input_folder_path + '/' + file
+                send_file_over_uart(file_path, serial_port)
                 wait_response_from_board(serial_port)
 
             serial_port.write('END FILES TRANSMISSION'.encode())
@@ -217,7 +242,9 @@ def command_handler(serial_port):
                 # test if
                 # if (file_name == 'FEES.txt' or file_name == 'FOSSASAT2E13.txt' or file_name == 'JILIN-01 GAOFEN 2F.txt'):
                 print(file)
-                send_file_over_uart(passes_folder, file, serial_port)
+                #TODO change this function
+                file_path = passes_folder + '/' + file
+                send_file_over_uart(file_path, serial_port)
                 wait_response_from_board(serial_port)
 
             serial_port.write('END FILES TRANSMISSION'.encode())

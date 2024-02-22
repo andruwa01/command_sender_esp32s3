@@ -41,7 +41,7 @@ def perform_http_requests(request_options_file):
         # we need it to get sat_id of each satellite and make corresponding request to n2yo api
         for sat_req_data in input_satellites:
             # get sat_id from satellite
-            sat_id = int(sat_req_data.split(' ')[1])
+            sat_id = int(sat_req_data.split('=')[1])
 
             url_get_req = "https://api.n2yo.com/rest/v1/satellite/radiopasses/%i/%f/%f/%f/%i/%i/&apiKey=%s"%(
                 sat_id,
@@ -71,9 +71,9 @@ def perform_http_requests(request_options_file):
             # print(data['info']['transactionscount'])
             # print(data['info']['passescount'])
 
-            sat_name = data['info']['satname'] 
-            transactions_count = data['info']['transactionscount']
-            passes_counter = data['info']['passescount']
+            sat_name =              data['info']['satname'] 
+            transactions_count =    data['info']['transactionscount']
+            passes_counter =        data['info']['passescount']
 
             passes_file_path = passes_info_path + '/' + str(sat_name) + '.txt'
 
@@ -99,10 +99,9 @@ def perform_http_requests(request_options_file):
                     local_pass_number = 0
                     for pass_item in passes:
                         local_pass_number += 1
-                        time_format = '%d.%m.%Y %H:%M'
-
-                        start_utc = pass_item['startUTC']
-                        end_utc = pass_item['endUTC']
+                        time_format     = '%d.%m.%Y %H:%M'
+                        start_utc       = pass_item['startUTC']
+                        end_utc         = pass_item['endUTC']
 
                         # print(start_utc)
                         # print(end_utc)
@@ -131,29 +130,29 @@ def perform_http_requests(request_options_file):
                         # test print 
                         # print(formatted_time, end='')
 
-                        start_az = pass_item['startAz'] 
-                        end_az = pass_item['endAz']
-                        az_values = 'startAz: %lf\nendAz: %lf\n'%(start_az, end_az)
+                        start_az    = pass_item['startAz'] 
+                        end_az      = pass_item['endAz']
+                        az_values   = 'startAz: %lf\nendAz: %lf\n'%(start_az, end_az)
 
                         # todo write start/end az values string to file
                         file.write(az_values)
                         # test print
                         # print(az_values, end='')
 
-                        start_az_compass = pass_item['startAzCompass']
-                        end_az_compass = pass_item['endAzCompass']
+                        start_az_compass    = pass_item['startAzCompass']
+                        end_az_compass      = pass_item['endAzCompass']
 
-                        az_compass_values = 'startAzCompass: %s\nendAzCompass: %s\n'%(start_az_compass, end_az_compass)
+                        az_compass_values   = 'startAzCompass: %s\nendAzCompass: %s\n'%(start_az_compass, end_az_compass)
 
                         # todo write az_compass values string to file
                         file.write(az_compass_values)
                         # test print
                         # print(az_compass_values, end='')
 
-                        max_az = pass_item['maxAz']
-                        max_az_compass = pass_item['maxAzCompass']
-                        max_el = pass_item['maxEl']
-                        max_utc = pass_item['maxUTC']
+                        max_az          = pass_item['maxAz']
+                        max_az_compass  = pass_item['maxAzCompass']
+                        max_el          = pass_item['maxEl']
+                        max_utc         = pass_item['maxUTC']
 
                         max_values = 'maxAz: %lf\nmaxAzCompass: %s\nmaxEl: %lf\nmaxUTC: %s\n'%(
                             max_az,
