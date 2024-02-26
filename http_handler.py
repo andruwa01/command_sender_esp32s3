@@ -1,8 +1,9 @@
 import requests
 import json
 import api_key as ak
-from time import strftime, localtime
 import os
+from time import strftime, localtime
+import text_handler
 
 
 def perform_http_requests(request_options_file):
@@ -21,9 +22,9 @@ def perform_http_requests(request_options_file):
         print()
 
         satellites_folder_name = 'satellites'
-        passes_full_folder_resp = 'passes_full_pc_responses'
+        passes_dir = 'passes_data'
 
-        passes_info_path = './' + satellites_folder_name + '/' + passes_full_folder_resp
+        passes_info_path = './' + satellites_folder_name + '/' + passes_dir
         if not os.path.isdir(passes_info_path):
             os.mkdir(passes_info_path)
 
@@ -75,14 +76,16 @@ def perform_http_requests(request_options_file):
             transactions_count =    data['info']['transactionscount']
             passes_counter =        data['info']['passescount']
 
-            passes_file_path = passes_info_path + '/' + str(sat_name) + '.txt'
+            # passes_file_path = passes_info_path + '/' + str(sat_name) + '.txt'
+            passes_file_path =  passes_info_path + '/' + str(sat_id) + '.txt'
 
             with open(passes_file_path, 'w') as file:
 
-                # info_values_string = 'sat_id: %i\nsat_name: %s\ntransactions_count: %i\npasses_count: %i\n'%(
-                info_values_string = 'sat_name:%s\nsat_id: %i\ntransactions_count: %i\npasses_count: %i\n'%(
-                    sat_name,
+                # TODO FIX IT first value:number - important pos of :
+                info_values_string = 'sat_id:%i\nsat_name: %s\ntransactions_count: %i\npasses_count: %i\n'%(
+                # info_values_string = 'sat_name: %s\nsat_id: %i\ntransactions_count: %i\npasses_count: %i\n'%(
                     sat_id,
+                    sat_name,
                     transactions_count,
                     passes_counter
                 )
@@ -167,3 +170,11 @@ def perform_http_requests(request_options_file):
                         # print(max_values, end='')
                 else:
                     print('No passes counter in response for satellite %s with id %i'%(sat_name, sat_id))
+
+            # create file by sat list
+            pass_data_list = []
+            with open(passes_file_path, 'r') as file:
+                for line in file:
+                    pass_data_list.append(line) 
+            
+            text_handler.create_file_by_list(pass_data_list)

@@ -85,9 +85,9 @@ def command_handler(serial_port):
     command_push_command_files =        'push command files'
     command_clear_spiffs =              'clear spiffs'
     command_get_spiffs_data =           'get spiffs info' 
-    command_stop =                      'stop'
     command_update_pc_responses =       'update passes'
     command_load_passes_to_spiffs =     'load passes to spiffs'
+    command_stop =                      'stop'
 
     satellites_decoded_list = ""
 
@@ -127,13 +127,16 @@ def command_handler(serial_port):
 
             # wait signal from board that it got command 
             wait_response_from_board(serial_port)
+
             request_options_file_default = './satellites/requests_input_options.txt'           
             # TODO rewrite this part to work with it
             send_file_over_uart(request_options_file_default, serial_port)
 
             # wait signal from board that it read input_options.txt file
             wait_response_from_board(serial_port)
+
             serial_port.write('END FILES TRANSMISSION'.encode())
+            print('END FILE TRANSMISSION')
 
             # wait response from board that it got finished managing file
             wait_response_from_board(serial_port)
@@ -141,7 +144,7 @@ def command_handler(serial_port):
             # end test block of code
 
             # get list of satellites names so we could work with it next
-            # satellites_decoded_list = text_handler.get_decoded_list_of_satellites_data(serial_port)
+            satellites_decoded_list = text_handler.get_decoded_list_of_satellites_data(serial_port)
 
             # perform 
 
@@ -161,21 +164,29 @@ def command_handler(serial_port):
             data_bytes = 0
 
             # create list of command_names
-            list_of_satellite_command_names = []
+            list_of_names = []
 
             # send list over uart
             # passes_user_input_folder_path = "./satellites/passes_user_input"
-            passes_full_pc_responses = './satellites/passes_full_pc_responses'
+            # passes_full_pc_responses = './satellites/passes_full_pc_responses'
 
             # for file_name in os.listdir(passes_user_input_folder_path):
-            for file in os.listdir(passes_full_pc_responses):
-                file = file.strip('.txt') + '\n'
-                # file += '\n'
-                data_bytes_by_file_name = serial_port.write(file.encode())
-                list_of_satellite_command_names.append(file)
-                data_bytes += data_bytes_by_file_name
+            # for file in os.listdir(passes_full_pc_responses):
+            #     file_name = file.strip('.txt') + '\n'
+            #     data_bytes_by_file_name = serial_port.write(file_name.encode())
+            #     list_of_satellite_command_names.append(file_name)
+            #     data_bytes += data_bytes_by_file_name
 
-            print("data: %s sent, size: %i bytes"%(list_of_satellite_command_names, data_bytes))
+            # TODO test function (clear spiffs by id from options file)
+            request_options_file_default = './satellites/requests_input_options.txt'
+            with open(request_options_file_default, 'r') as file:
+                for line in file:
+                    sat_id = line.split('=')[1]
+                    data_bytes_by_file_name = serial_port.write(sat_id.encode())
+                    list_of_names.append(sat_id)
+                    data_bytes += data_bytes_by_file_name
+
+            print("data: %s sent, size: %i bytes"%(list_of_names, data_bytes))
 
             # serial_port.reset_output_buffer()
             # serial_port.send_break(1)
@@ -238,11 +249,18 @@ def command_handler(serial_port):
             passes_folder = './satellites/passes_full_pc_responses'
 
             # iterate over files
+            # for file in os.listdir(passes_folder):
+            #     # test if
+            #     # if (file_name == 'FEES.txt' or file_name == 'FOSSASAT2E13.txt' or file_name == 'JILIN-01 GAOFEN 2F.txt'):
+            #     print(file)
+            #     #TODO change this function
+            #     file_path = passes_folder + '/' + file
+            #     send_file_over_uart(file_path, serial_port)
+            #     wait_response_from_board(serial_port)
+
+            # TODO test function: writing to uart with id (not name)
+            # TODO make variable request_options_file_default global (for all places in this code file)
             for file in os.listdir(passes_folder):
-                # test if
-                # if (file_name == 'FEES.txt' or file_name == 'FOSSASAT2E13.txt' or file_name == 'JILIN-01 GAOFEN 2F.txt'):
-                print(file)
-                #TODO change this function
                 file_path = passes_folder + '/' + file
                 send_file_over_uart(file_path, serial_port)
                 wait_response_from_board(serial_port)

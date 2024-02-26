@@ -121,7 +121,7 @@ def get_decoded_list_of_satellites_data(serial_port):
         for element in input_list_binary:
             input_list_decoded.append(element.decode())
 
-        print(input_list_decoded)
+        print('list from uart: %s\n'%input_list_decoded)
 
         print('Got list from spiffs')
         return input_list_decoded
