@@ -6,7 +6,7 @@ from time import strftime, localtime
 import text_handler
 
 
-def perform_http_requests(request_options_file):
+def update_data(request_options_file):
     if os.stat(request_options_file).st_size == 0:
         print('ОШИБКА! Нет данных о спутниках для совершения запросов на сервер')
     else:
@@ -28,7 +28,7 @@ def perform_http_requests(request_options_file):
         if not os.path.isdir(passes_info_path):
             os.mkdir(passes_info_path)
 
-        # todo add this options to file so user could install it with his desires
+        # TODO add this options to file so user could install it with his desires
         observer_lat = 51.671667
         observer_lng = 39.210556
         observer_alt = 99
@@ -82,7 +82,7 @@ def perform_http_requests(request_options_file):
             with open(passes_file_path, 'w') as file:
 
                 # TODO FIX IT first value:number - important pos of :
-                info_values_string = 'sat_id:%i\nsat_name: %s\ntransactions_count: %i\npasses_count: %i\n'%(
+                info_values_string = 'sat_id: %i\nsat_name: %s\ntransactions_count: %i\npasses_count: %i\n'%(
                 # info_values_string = 'sat_name: %s\nsat_id: %i\ntransactions_count: %i\npasses_count: %i\n'%(
                     sat_id,
                     sat_name,
@@ -168,8 +168,11 @@ def perform_http_requests(request_options_file):
                         file.write(max_values)
                         # test print
                         # print(max_values, end='')
+
                 else:
                     print('No passes counter in response for satellite %s with id %i'%(sat_name, sat_id))
+
+            print('file %s was created with size: %i bytes'%(passes_file_path, os.path.getsize(passes_file_path)))
 
             # create file by sat list
             pass_data_list = []

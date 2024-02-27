@@ -7,7 +7,7 @@
 # -[x] Обновить содержимое файлов всех спутников в spiffs
 
 import text_handler
-import http_handler
+import https_req
 import os
 
 # TODO change this function on 
@@ -179,8 +179,8 @@ def command_handler(serial_port):
 
             # TODO test function (clear spiffs by id from options file)
             request_options_file_default = './satellites/requests_input_options.txt'
-            with open(request_options_file_default, 'r') as file:
-                for line in file:
+            with open(request_options_file_default, 'r') as file_pass:
+                for line in file_pass:
                     sat_id = line.split('=')[1]
                     data_bytes_by_file_name = serial_port.write(sat_id.encode())
                     list_of_names.append(sat_id)
@@ -208,9 +208,9 @@ def command_handler(serial_port):
             # passes_full_folder_path = "./satellites/passes_full"
             passes_user_input_folder_path = "./satellites/passes_user_input"
 
-            for file in os.listdir(passes_user_input_folder_path):
+            for file_pass in os.listdir(passes_user_input_folder_path):
                 #TODO change this function
-                file_path = passes_user_input_folder_path + '/' + file
+                file_path = passes_user_input_folder_path + '/' + file_pass
                 send_file_over_uart(file_path, serial_port)
                 wait_response_from_board(serial_port)
 
@@ -232,7 +232,7 @@ def command_handler(serial_port):
         elif(command == command_update_pc_responses):
             # perform requests
             request_options_file_default = './satellites/requests_input_options.txt'
-            http_handler.perform_http_requests(request_options_file_default)
+            https_req.update_data(request_options_file_default)
 
         elif(command == command_load_passes_to_spiffs):
             # write command to uart buffer
@@ -246,7 +246,8 @@ def command_handler(serial_port):
             wait_response_from_board(serial_port)
 
             # folder with passes files (responses)
-            passes_folder = './satellites/passes_full_pc_responses'
+            passes_folder = './satellites/passes_data'
+            user_params_dir = './satellites/params_shedule'
 
             # iterate over files
             # for file in os.listdir(passes_folder):
@@ -260,10 +261,17 @@ def command_handler(serial_port):
 
             # TODO test function: writing to uart with id (not name)
             # TODO make variable request_options_file_default global (for all places in this code file)
-            for file in os.listdir(passes_folder):
-                file_path = passes_folder + '/' + file
+            for file_pass in os.listdir(passes_folder):
+                file_path = passes_folder + '/' + file_pass
                 send_file_over_uart(file_path, serial_port)
                 wait_response_from_board(serial_port)
+
+            
+            # TODO write ineration over command files so everything will be ok
+            # for user_param in os.listdir(user_params_dir):
+            #     file_path = user_params_dir + '/' + user_param
+            #     send_file_over_uart(file_path, serial_port)
+            #     wait_response_from_board(serial_port)
 
             serial_port.write('END FILES TRANSMISSION'.encode())
 
