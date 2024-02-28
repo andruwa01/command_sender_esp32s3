@@ -263,15 +263,27 @@ def command_handler(serial_port):
             # TODO make variable request_options_file_default global (for all places in this code file)
             for file_pass in os.listdir(passes_folder):
                 file_path = passes_folder + '/' + file_pass
+                print(file_path)
+                send_file_over_uart(file_path, serial_port)
+                wait_response_from_board(serial_port)
+            
+            # test file sending
+            # send_file_over_uart(passes_folder + '/' + '46494.txt', serial_port)
+            # wait_response_from_board(serial_port)
+            # send_file_over_uart(passes_folder + '/' + '48082.txt', serial_port)
+            # wait_response_from_board(serial_port)
+            
+            # TODO write ineration over command files so everything will be ok
+            for user_param in os.listdir(user_params_dir):
+                file_path = user_params_dir + '/' + user_param
                 send_file_over_uart(file_path, serial_port)
                 wait_response_from_board(serial_port)
 
-            
-            # TODO write ineration over command files so everything will be ok
-            # for user_param in os.listdir(user_params_dir):
-            #     file_path = user_params_dir + '/' + user_param
-            #     send_file_over_uart(file_path, serial_port)
-            #     wait_response_from_board(serial_port)
+            # test file sending
+            # send_file_over_uart(user_params_dir + '/' + '46494_commands.txt', serial_port)
+            # wait_response_from_board(serial_port)
+            # send_file_over_uart(user_params_dir + '/' + '48082_commands.txt', serial_port)
+            # wait_response_from_board(serial_port)
 
             serial_port.write('END FILES TRANSMISSION'.encode())
 

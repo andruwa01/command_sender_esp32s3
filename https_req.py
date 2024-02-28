@@ -180,4 +180,4 @@ def update_data(request_options_file):
                 for line in file:
                     pass_data_list.append(line) 
             
-            text_handler.create_file_by_list(pass_data_list)
+            text_handler.create_shedule_pass_files_by_pass_list(pass_data_list)

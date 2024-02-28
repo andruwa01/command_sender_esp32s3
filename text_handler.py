@@ -19,7 +19,7 @@ def initialize_port(timeout_s):
 
 # creating file (and corresponding directories) by list of data in special format, if it does not exist and write to it
 # TODO rename file to create_command_file_by_list
-def create_file_by_list(list_for_file):
+def create_shedule_pass_files_by_pass_list(list_for_file):
     if(len(list_for_file) == 0 or list_for_file[0] == 'END_OF_THE_FILE\n'):
         print('ERROR! YOU TRY TO CREATE FILE FROM EMPTY STRING')
         return
@@ -51,8 +51,8 @@ def create_file_by_list(list_for_file):
     # if no file 
     if(not os.path.isfile(user_input_forecast_path)):
         with open(user_input_forecast_path, 'w') as file:
-            file.write('name=%s\n'%(sat_name))
             file.write('norad=%s\n'%(sat_id))
+            file.write('name=%s\n'%(sat_name))
             file.write('freq=\n')
             file.write('bw=\n')
             file.write('sf=\n')
@@ -79,7 +79,7 @@ def create_file_by_list(list_for_file):
         # write default lines (with suer input info)
         temp_file.writelines(default_lines)
 
-        # edd empty line delimiter between next data line symbols (as need)
+        # edd empty line delimiter between next data line symbols (as need by task)
         temp_file.write('\n')
        
         # write info about time of passes
@@ -102,6 +102,33 @@ def create_file_by_list(list_for_file):
     #         file.write(line)
 
     # print('%s was created with size: %i bytes'%(passes_file_path, os.path.getsize(passes_file_path)))
+
+def create_passes_files(passes_list):
+    passes_folder = './satellites/passes_from_board'
+    if not os.path.isdir(passes_folder):
+        os.mkdir(passes_folder)
+
+    sat_id = passes_list[0].split(' ', 1)[1].strip('\n')
+    
+    passes_file_path = passes_folder + '/' + sat_id + '_board_pass' + '.txt'
+
+    with open(passes_file_path, 'w') as file:
+        for line in passes_list:
+            file.write(line)
+    
+
+def create_shedule_files(shedules_list):
+    shedules_folder = './satellites/shedules_from_board'
+    if not os.path.isdir(shedules_folder):
+        os.mkdir(shedules_folder)
+    
+    sat_id = shedules_list[0].split('=', 1)[1].strip('\n')
+
+    shedules_file_path = shedules_folder + '/' + sat_id + '_board_shedule' + '.txt'
+
+    with open(shedules_file_path, 'w') as file:
+        for line in shedules_list:
+            file.write(line)
 
 
 def get_decoded_list_of_satellites_data(serial_port): 
@@ -133,6 +160,6 @@ def parse_list_create_files(decoded_satellite_list):
         if (decoded_satellite_list[element_index] == 'END_OF_THE_FILE\n'): 
             last_index = element_index
             satellite_list = decoded_satellite_list[start_index:last_index]
-            create_file_by_list(satellite_list)
+            create_shedule_pass_files_by_pass_list(satellite_list)
             start_index = last_index + 1
     print('List parsed, files created')
