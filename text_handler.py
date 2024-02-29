@@ -1,6 +1,8 @@
 import serial
+import names
 import os
 import time
+import datetime
 
 def initialize_port(timeout_s):
     port_instance = serial.Serial(
@@ -19,38 +21,45 @@ def initialize_port(timeout_s):
 
 # creating file (and corresponding directories) by list of data in special format, if it does not exist and write to it
 # TODO rename file to create_command_file_by_list
-def create_shedule_pass_files_by_pass_list(list_for_file):
-    if(len(list_for_file) == 0 or list_for_file[0] == 'END_OF_THE_FILE\n'):
+def create_files_by_response_list(response_list):
+    # test print
+    print(response_list)
+
+    if(len(response_list) == 0 or response_list[0] == 'END_OF_THE_FILE\n'):
         print('ERROR! YOU TRY TO CREATE FILE FROM EMPTY STRING')
         return
 
-    satellites_folder_name = 'satellites'
+    # satellites_folder_name = 'satellites'
     # passes_info_folder_name = 'passes_full'
-    passes_input_folder_name = 'params_shedule'
-    # check if folder /satellites exists else create one
-    if not os.path.isdir(satellites_folder_name):
-        os.mkdir(satellites_folder_name)
-    # check if folder ./satellites/passes_data 
-    # passes_info_path = './' + satellites_folder_name + '/' + passes_info_folder_name
-    # if not os.path.isdir(passes_info_path):
-    #     os.mkdir(passes_info_path)
-    # check if folder ./satellites/user_input_data
-    passes_input_path = './' + satellites_folder_name + '/' + passes_input_folder_name
-    if not os.path.isdir(passes_input_path):
-        os.mkdir(passes_input_path)
+    # passes_input_folder_name = 'commands'
 
-    string_witd_sat_id = list_for_file[0]
-    string_with_name = list_for_file[1]
-    sat_id = string_witd_sat_id.split(' ', 1)[1].strip('\n')
-    sat_name = string_with_name.split(' ', 1)[1].strip('\n')
+    if not os.path.isdir(names.satellites_dir_path):
+        os.mkdir(names.satellites_dir_path)
+    # responses_dir_path = './' + names.satellites_dir + '/' + names.responses_dir_name
+    if not os.path.isdir(names.responses_dir_path):
+        os.mkdir(names.responses_dir_path)
+    # commands_dir_path = './' + names.satellites_dir + '/' + names.commands_dir_name
+    if not os.path.isdir(names.commands_dir_path):
+        os.mkdir(names.commands_dir_path)
 
-    user_input_forecast_path = passes_input_path + '/' + str(sat_id) + '_commands' + '.txt'
-    temp_file_path = passes_input_path + '/' + str(sat_id) + '_commands_temp' + '.txt'
+    # test print
+    # print(response_list)
+    # time.sleep(5)
+
+    string_with_sat_id = response_list[0]
+    string_with_name   = response_list[1]
+    sat_id             = string_with_sat_id.split(' ', 1)[1].strip('\n')
+    sat_name           = string_with_name.split(' ', 1)[1].strip('\n')
+
+    command_file_path      = names.commands_dir_path  + '/' + str(sat_id) + names.command_postfix      + '.txt'
+    command_temp_file_path = names.commands_dir_path  + '/' + str(sat_id) + names.command_temp_postfix + '.txt'
+
+    response_file_path     = names.responses_dir_path + '/' + str(sat_id) + names.response_postfix     + '.txt'
     # passes_file_path = passes_info_path + '/' + str(sat_name) + '.txt'
 
     # if no file 
-    if(not os.path.isfile(user_input_forecast_path)):
-        with open(user_input_forecast_path, 'w') as file:
+    if not os.path.isfile(command_file_path):
+        with open(command_file_path, 'w') as file:
             file.write('norad=%s\n'%(sat_id))
             file.write('name=%s\n'%(sat_name))
             file.write('freq=\n')
@@ -66,7 +75,7 @@ def create_shedule_pass_files_by_pass_list(list_for_file):
     # buffer for values to compare with
     template_values = ['name', 'norad', 'freq', 'bw', 'sf', 'cr', 'sw', 'pl', '']
 
-    with open(user_input_forecast_path, 'r') as default_file, open(temp_file_path, 'w+') as temp_file:
+    with open(command_file_path, 'r') as default_file, open(command_temp_file_path, 'w+') as temp_file:
         # save user input values to list
         for line in default_file:
 
@@ -84,7 +93,7 @@ def create_shedule_pass_files_by_pass_list(list_for_file):
        
         # write info about time of passes
         # date_pass_counter = 0
-        for element in list_for_file: 
+        for element in response_list: 
             if element[0] == '#':
                 # if date_pass_counter < 9:
                 #     temp_file.write(element[0] + '0' + element[1:])
@@ -92,42 +101,80 @@ def create_shedule_pass_files_by_pass_list(list_for_file):
                 # else:
                 temp_file.write(element)
 
-    os.remove(user_input_forecast_path)
-    os.rename(temp_file_path, user_input_forecast_path)
+    os.remove(command_file_path)
+    os.rename(command_temp_file_path, command_file_path)
 
-    print('file %s was created with size: %i bytes\n'%(user_input_forecast_path, os.path.getsize(user_input_forecast_path)))
+    print('file %s was created with size: %i bytes'%(command_file_path, os.path.getsize(command_file_path)))
 
-    # with open(passes_file_path, 'w') as file:
-    #     for line in list_for_file:
-    #         file.write(line)
+    with open(response_file_path, 'w') as file:
+        for line in response_list:
+            file.write(line)
 
-    # print('%s was created with size: %i bytes'%(passes_file_path, os.path.getsize(passes_file_path)))
+    print('file %s was created with size: %i bytes'%(response_file_path, os.path.getsize(response_file_path)))
 
-def create_passes_files(passes_list):
-    passes_folder = './satellites/passes_from_board'
-    if not os.path.isdir(passes_folder):
-        os.mkdir(passes_folder)
+def create_responses_board_files(response_list):
+    now_time = datetime.datetime.now()
+    formatted_now_time = now_time.strftime('%Y-%m-%d_%H:%M:%S')
+    # print(formatted_now_time)
+    last_time_updated_postfix = '_updated_%s'%(formatted_now_time)
+    # print(last_time_updated_postfix)
 
-    sat_id = passes_list[0].split(' ', 1)[1].strip('\n')
+
+    # responses_dir_path = './satellites/passes_from_board'
+    # responses_board_dir_path = './' + names.satellites_dir_name + '/' + names.responses_dir_name + names.last_time_updated_postfix 
+    responses_board_dir_path = names.responses_board_dir_path + last_time_updated_postfix 
+    if not os.path.isdir(responses_board_dir_path):
+        os.mkdir(responses_board_dir_path)
+
+    sat_id = response_list[0].split(' ', 1)[1].strip('\n')
+
+    # test
+    response_board_file_path = '%s/%s%s.txt'%(
+        responses_board_dir_path,
+        sat_id,
+        names.response_board_postfix,
+    )
     
-    passes_file_path = passes_folder + '/' + sat_id + '_board_pass' + '.txt'
+    # response_board_file_path = names.responses_board_dir_path + '/' + sat_id + names.response_board_postfix + last_time_updated_postfix + '.txt'
 
-    with open(passes_file_path, 'w') as file:
-        for line in passes_list:
+    with open(response_board_file_path, 'w') as file:
+        for line in response_list:
             file.write(line)
     
 
-def create_shedule_files(shedules_list):
-    shedules_folder = './satellites/shedules_from_board'
-    if not os.path.isdir(shedules_folder):
-        os.mkdir(shedules_folder)
+def create_commands_board_files(command_list):
+    now_time = datetime.datetime.now()
+    formatted_now_time = now_time.strftime('%Y-%m-%d_%H:%M:%S')
+    # print(formatted_now_time)
+    last_time_updated_postfix = '_updated_%s'%(formatted_now_time)
+    # print(last_time_updated_postfix)
+
+
+    # shedules_folder = './satellites/shedules_from_board'
+    # commands_dir_path = './' + names.satellites_dir_name + '/' + names.commands_board_dir_name + names.last_time_updated_postfix
+
+    commands_board_dir_path = names.commands_board_dir_path + last_time_updated_postfix 
+
+    if not os.path.isdir(commands_board_dir_path):
+        os.mkdir(commands_board_dir_path)
     
-    sat_id = shedules_list[0].split('=', 1)[1].strip('\n')
+    sat_id = command_list[0].split('=', 1)[1].strip('\n')
 
-    shedules_file_path = shedules_folder + '/' + sat_id + '_board_shedule' + '.txt'
+    # test
+    command_board_file_path = '%s/%s%s.txt'%(
+        commands_board_dir_path,
+        sat_id,
+        names.command_board_postfix
+    )
+    # command_file_path = names.commands_board_dir_path + '/' + sat_id + names.postfix + '.txt'
 
-    with open(shedules_file_path, 'w') as file:
-        for line in shedules_list:
+    with open(command_board_file_path, 'w') as file:
+        for line in command_list:
+            # when 'pl' found - add '\n' after this line (just for visual)
+            if line[0] + line[1] == 'pl': 
+                file.write(line)
+                file.write('\n')
+                continue
             file.write(line)
 
 
@@ -151,7 +198,6 @@ def get_decoded_list_of_satellites_data(serial_port):
         print("WARNING! Port IS NOT opened or no data in RX (input) buffer")
         return
 
-
 def parse_list_create_files(decoded_satellite_list):
     satellite_list = []
     # create files for each satellite in input_list :
@@ -160,6 +206,8 @@ def parse_list_create_files(decoded_satellite_list):
         if (decoded_satellite_list[element_index] == 'END_OF_THE_FILE\n'): 
             last_index = element_index
             satellite_list = decoded_satellite_list[start_index:last_index]
-            create_shedule_pass_files_by_pass_list(satellite_list)
+            # create_files_by_response_list(satellite_list)
+            # create_responses_board_files(satellite_list)
+            create_commands_board_files(satellite_list)
             start_index = last_index + 1
     print('List parsed, files created')

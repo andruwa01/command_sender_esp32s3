@@ -4,6 +4,7 @@ import api_key as ak
 import os
 from time import strftime, localtime
 import text_handler
+import names
 
 
 def update_data(request_options_file):
@@ -16,17 +17,18 @@ def update_data(request_options_file):
             for line in file:
                 input_satellites.append(line)
         
+        # test print
         print('input satellites data:')
         for sat_req_data in input_satellites:
             print(sat_req_data, end='')
         print()
 
-        satellites_folder_name = 'satellites'
-        passes_dir = 'passes_data'
+        # satellites_dir = 'satellites'
+        # passes_dir = 'responses'
 
-        passes_info_path = './' + satellites_folder_name + '/' + passes_dir
-        if not os.path.isdir(passes_info_path):
-            os.mkdir(passes_info_path)
+        # responses_dir_path = './' + names.satellites_dir + '/' + names.responses_dir
+        # if not os.path.isdir(responses_dir_path):
+        #     os.mkdir(responses_dir_path)
 
         # TODO add this options to file so user could install it with his desires
         observer_lat = 51.671667
@@ -63,7 +65,8 @@ def update_data(request_options_file):
             # print(response_data)
 
             # parse json in list
-            data = json.loads(response_data)
+            data = json.loads(response.text)
+            # print(data)
 
             # test print
             # print('Info:')
@@ -77,107 +80,142 @@ def update_data(request_options_file):
             passes_counter =        data['info']['passescount']
 
             # passes_file_path = passes_info_path + '/' + str(sat_name) + '.txt'
-            passes_file_path =  passes_info_path + '/' + str(sat_id) + '.txt'
+            # response_file_path =  responses_dir_path + '/' + str(sat_id) + names.response_postfix + '.txt'
 
-            with open(passes_file_path, 'w') as file:
+            response_buffer = []
 
-                # TODO FIX IT first value:number - important pos of :
-                info_values_string = 'sat_id: %i\nsat_name: %s\ntransactions_count: %i\npasses_count: %i\n'%(
-                # info_values_string = 'sat_name: %s\nsat_id: %i\ntransactions_count: %i\npasses_count: %i\n'%(
-                    sat_id,
-                    sat_name,
-                    transactions_count,
-                    passes_counter
-                )
+            # with open(response_file_path, 'w') as file:
 
-                # add string to file
-                file.write(info_values_string)
-                # test print
-                # print(info_values_string)
+            # TODO FIX IT first value:number - important pos of :
+            info_values_string = 'sat_id: %i\nsat_name: %s\ntransactions_count: %i\npasses_count: %i\n'%(
+            # info_values_string = 'sat_name: %s\nsat_id: %i\ntransactions_count: %i\npasses_count: %i\n'%(
+                sat_id,
+                sat_name,
+                transactions_count,
+                passes_counter
+            )
 
-                if(passes_counter != 0):
+            # test 
+            # add line to buffer
+            splitted_string = info_values_string.split('\n')
+            for item in splitted_string:
+                response_buffer.append(item + '\n')
 
-                    passes = data['passes']
+            # add string to file
+            # file.write(info_values_string)
+            # test print
+            # print(info_values_string)
 
-                    local_pass_number = 0
-                    for pass_item in passes:
-                        local_pass_number += 1
-                        time_format     = '%d.%m.%Y %H:%M'
-                        start_utc       = pass_item['startUTC']
-                        end_utc         = pass_item['endUTC']
+            if(passes_counter != 0):
+                passes = data['passes']
+                local_pass_number = 0
+                for pass_item in passes:
+                    local_pass_number += 1
+                    time_format     = '%d.%m.%Y %H:%M'
+                    start_utc       = pass_item['startUTC']
+                    end_utc         = pass_item['endUTC']
 
-                        # print(start_utc)
-                        # print(end_utc)
+                    # print(start_utc)
+                    # print(end_utc)
 
-                        start_utc_converted = strftime(time_format, localtime(start_utc))
-                        end_utc_converted = strftime(time_format, localtime(end_utc))
+                    start_utc_converted = strftime(time_format, localtime(start_utc))
+                    end_utc_converted   = strftime(time_format, localtime(end_utc))
 
-                        # print('startUTC: ' + start_utc_converted)
-                        # print('endUTC: ' + end_utc_converted)
+                    # print('startUTC: ' + start_utc_converted)
+                    # print('endUTC: ' + end_utc_converted)
 
-                        if(local_pass_number < 10):
-                            formatted_time = '#0%i start %s end %s\n'%(
+                    if(local_pass_number < 10):
+                        formatted_time = '#0%i start %s end %s\n'%(
+                                local_pass_number,
+                                start_utc_converted,
+                                end_utc_converted
+                            )
+                    else:
+                        formatted_time = '#%i start %s end %s\n'%(
                                     local_pass_number,
                                     start_utc_converted,
                                     end_utc_converted
                                 )
-                        else:
-                            formatted_time = '#%i start %s end %s\n'%(
-                                        local_pass_number,
-                                        start_utc_converted,
-                                        end_utc_converted
-                                    )
-                        
-                        # todo write time formatted string to file
-                        file.write(formatted_time)
-                        # test print 
-                        # print(formatted_time, end='')
+                    
+                    # test 
+                    # add line to buffer
+                    splitted_string = formatted_time.split('\n')
+                    for item in splitted_string:
+                        response_buffer.append(item + '\n')
 
-                        start_az    = pass_item['startAz'] 
-                        end_az      = pass_item['endAz']
-                        az_values   = 'startAz: %lf\nendAz: %lf\n'%(start_az, end_az)
+                    # todo write time formatted string to file
+                    # file.write(formatted_time)
+                    # test print 
+                    # print(formatted_time, end='')
 
-                        # todo write start/end az values string to file
-                        file.write(az_values)
-                        # test print
-                        # print(az_values, end='')
+                    start_az    = pass_item['startAz'] 
+                    end_az      = pass_item['endAz']
+                    az_values   = 'startAz: %lf\nendAz: %lf\n'%(start_az, end_az)
 
-                        start_az_compass    = pass_item['startAzCompass']
-                        end_az_compass      = pass_item['endAzCompass']
+                    # test
+                    # add line to buffer
+                    splitted_string = az_values.split('\n')
+                    for item in splitted_string: 
+                        response_buffer.append(item + '\n')
 
-                        az_compass_values   = 'startAzCompass: %s\nendAzCompass: %s\n'%(start_az_compass, end_az_compass)
+                    # todo write start/end az values string to file
+                    # file.write(az_values)
+                    # test print
+                    # print(az_values, end='')
 
-                        # todo write az_compass values string to file
-                        file.write(az_compass_values)
-                        # test print
-                        # print(az_compass_values, end='')
+                    start_az_compass    = pass_item['startAzCompass']
+                    end_az_compass      = pass_item['endAzCompass']
 
-                        max_az          = pass_item['maxAz']
-                        max_az_compass  = pass_item['maxAzCompass']
-                        max_el          = pass_item['maxEl']
-                        max_utc         = pass_item['maxUTC']
+                    az_compass_values   = 'startAzCompass: %s\nendAzCompass: %s\n'%(start_az_compass, end_az_compass)
 
-                        max_values = 'maxAz: %lf\nmaxAzCompass: %s\nmaxEl: %lf\nmaxUTC: %s\n'%(
-                            max_az,
-                            max_az_compass,
-                            max_el,
-                            max_utc
-                        )
+                    # test
+                    # add line to buffer
+                    splitted_string = az_compass_values.split('\n')
+                    for item in splitted_string:
+                        response_buffer.append(item + '\n')
 
-                        #todo write max values string to file
-                        file.write(max_values)
-                        # test print
-                        # print(max_values, end='')
+                    # todo write az_compass values string to file
+                    # file.write(az_compass_values)
+                    # test print
+                    # print(az_compass_values, end='')
 
-                else:
-                    print('No passes counter in response for satellite %s with id %i'%(sat_name, sat_id))
+                    max_az          = pass_item['maxAz']
+                    max_az_compass  = pass_item['maxAzCompass']
+                    max_el          = pass_item['maxEl']
+                    max_utc         = pass_item['maxUTC']
 
-            print('file %s was created with size: %i bytes'%(passes_file_path, os.path.getsize(passes_file_path)))
+                    max_values = 'maxAz: %lf\nmaxAzCompass: %s\nmaxEl: %lf\nmaxUTC: %s\n'%(
+                        max_az,
+                        max_az_compass,
+                        max_el,
+                        max_utc
+                    )
+
+                    # test
+                    # add line to buffer
+                    splitted_string = max_values.split('\n')
+                    for item in splitted_string:
+                        response_buffer.append(item + '\n')
+
+                    #todo write max values string to file
+                    # file.write(max_values)
+                    # test print
+                    # print(max_values, end='')
+
+            else:
+                print('No passes counter in response for satellite %s with id %i'%(sat_name, sat_id))
+
+            # print('file %s was created with size: %i bytes'%(response_file_path, os.path.getsize(response_file_path)))
 
             # create file by sat list
-            pass_data_list = []
-            with open(passes_file_path, 'r') as file:
-                for line in file:
-                    pass_data_list.append(line) 
+            # pass_data_list = []
+            # with open(response_file_path, 'r') as file:
+            #     for line in file:
+            #         pass_data_list.append(line) 
             
-            text_handler.create_shedule_pass_files_by_pass_list(pass_data_list)
+            # test print
+
+            # remove external elements from buffer
+            filtered_buffer = list(filter(lambda element: element != '\n', response_buffer)) 
+            # send filtered buffer to function to create files 
+            text_handler.create_files_by_response_list(filtered_buffer)

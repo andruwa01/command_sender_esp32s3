@@ -9,6 +9,7 @@
 import text_handler
 import https_req
 import os
+import names
 
 # TODO change this function on 
 def send_file_over_uart(file_path, serial_port):
@@ -128,9 +129,14 @@ def command_handler(serial_port):
             # wait signal from board that it got command 
             wait_response_from_board(serial_port)
 
-            request_options_file_default = './satellites/requests_input_options.txt'           
+            # request_options_file_default = './satellites/requests_input_options.txt'           
+            
+            
             # TODO rewrite this part to work with it
-            send_file_over_uart(request_options_file_default, serial_port)
+            # send_file_over_uart(request_options_file_default, serial_port)
+
+            # test
+            send_file_over_uart(names.request_input_options_file_path, serial_port)
 
             # wait signal from board that it read input_options.txt file
             wait_response_from_board(serial_port)
@@ -144,9 +150,23 @@ def command_handler(serial_port):
             # end test block of code
 
             # get list of satellites names so we could work with it next
-            satellites_decoded_list = text_handler.get_decoded_list_of_satellites_data(serial_port)
+            # satellites_decoded_list = text_handler.get_decoded_list_of_satellites_data(serial_port)
 
-            # perform 
+            # get list of responses from board
+            responses_list = text_handler.get_decoded_list_of_satellites_data(serial_port)
+            # TODO почему появляется NEXT_ACTION последним файлом? 
+
+
+            # parse list of responses from board to corresponding files
+            text_handler.parse_list_create_files(responses_list)
+
+            # # divide to operations
+            wait_response_from_board(serial_port)
+
+            # # get list of commands from board
+            # commands_list = text_handler.get_decoded_list_of_satellites_data(serial_port) 
+            # # parse list of responses from board to corresponding files
+            # text_handler.create_commands_board_files(commands_list)
 
             wait_response_from_board(serial_port) 
 
@@ -246,8 +266,8 @@ def command_handler(serial_port):
             wait_response_from_board(serial_port)
 
             # folder with passes files (responses)
-            passes_folder = './satellites/passes_data'
-            user_params_dir = './satellites/params_shedule'
+            # passes_folder = './satellites/passes_data'
+            # user_params_dir = './satellites/params_shedule'
 
             # iterate over files
             # for file in os.listdir(passes_folder):
@@ -261,8 +281,8 @@ def command_handler(serial_port):
 
             # TODO test function: writing to uart with id (not name)
             # TODO make variable request_options_file_default global (for all places in this code file)
-            for file_pass in os.listdir(passes_folder):
-                file_path = passes_folder + '/' + file_pass
+            for file_pass in os.listdir(names.responses_dir_path):
+                file_path = names.responses_dir_path + '/' + file_pass
                 print(file_path)
                 send_file_over_uart(file_path, serial_port)
                 wait_response_from_board(serial_port)
@@ -274,8 +294,8 @@ def command_handler(serial_port):
             # wait_response_from_board(serial_port)
             
             # TODO write ineration over command files so everything will be ok
-            for user_param in os.listdir(user_params_dir):
-                file_path = user_params_dir + '/' + user_param
+            for user_param in os.listdir(names.commands_dir_path):
+                file_path = names.commands_dir_path + '/' + user_param
                 send_file_over_uart(file_path, serial_port)
                 wait_response_from_board(serial_port)
 
