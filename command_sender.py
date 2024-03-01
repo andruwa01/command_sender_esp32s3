@@ -6,9 +6,10 @@
 # -[x] *Вести данные (изменения) в spiffs*
 # -[x] Обновить содержимое файлов всех спутников в spiffs
 
+import os
+import time
 import text_handler
 import https_req
-import os
 import names
 
 # TODO change this function on 
@@ -79,6 +80,10 @@ def wait_response_from_board(serial_port):
 
 def command_handler(serial_port):
 
+    print('Program starts . . .')
+    # wait some time before board finish boot process 
+    time.sleep(5)
+
     command_help =                      'help'
     command_update_buffer =             'update buffer'
     command_parse_buffer_create_files = 'parse buffer'
@@ -136,7 +141,7 @@ def command_handler(serial_port):
             # send_file_over_uart(request_options_file_default, serial_port)
 
             # test
-            send_file_over_uart(names.request_input_options_file_path, serial_port)
+            send_file_over_uart(names.request_options_file_path, serial_port)
 
             # wait signal from board that it read input_options.txt file
             wait_response_from_board(serial_port)
@@ -161,7 +166,7 @@ def command_handler(serial_port):
             text_handler.parse_list_create_files(responses_list)
 
             # # divide to operations
-            wait_response_from_board(serial_port)
+            # wait_response_from_board(serial_port)
 
             # # get list of commands from board
             # commands_list = text_handler.get_decoded_list_of_satellites_data(serial_port) 
@@ -198,8 +203,8 @@ def command_handler(serial_port):
             #     data_bytes += data_bytes_by_file_name
 
             # TODO test function (clear spiffs by id from options file)
-            request_options_file_default = './satellites/requests_input_options.txt'
-            with open(request_options_file_default, 'r') as file_pass:
+            # request_options_file_default = './satellites/requests_input_options.txt'
+            with open(names.request_options_file_path, 'r') as file_pass:
                 for line in file_pass:
                     sat_id = line.split('=')[1]
                     data_bytes_by_file_name = serial_port.write(sat_id.encode())
@@ -251,8 +256,7 @@ def command_handler(serial_port):
         
         elif(command == command_update_pc_responses):
             # perform requests
-            request_options_file_default = './satellites/requests_input_options.txt'
-            https_req.update_data(request_options_file_default)
+            https_req.update_data(names.request_options_file_path)
 
         elif(command == command_load_passes_to_spiffs):
             # write command to uart buffer

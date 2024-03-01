@@ -4,7 +4,7 @@ import api_key as ak
 import os
 from time import strftime, localtime
 import text_handler
-import names
+# import names
 
 
 def update_data(request_options_file):

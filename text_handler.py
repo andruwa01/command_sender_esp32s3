@@ -112,17 +112,27 @@ def create_files_by_response_list(response_list):
 
     print('file %s was created with size: %i bytes'%(response_file_path, os.path.getsize(response_file_path)))
 
-def create_responses_board_files(response_list):
-    now_time = datetime.datetime.now()
-    formatted_now_time = now_time.strftime('%Y-%m-%d_%H:%M:%S')
-    # print(formatted_now_time)
-    last_time_updated_postfix = '_updated_%s'%(formatted_now_time)
-    # print(last_time_updated_postfix)
+def create_responses_board_files(response_list, board_data_dir_path):
+    # now_time = datetime.datetime.now()
+    # formatted_now_time = now_time.strftime('%Y-%m-%d_%H:%M:%S')
+    # # print(formatted_now_time)
+    # last_time_updated_postfix = '_updated_%s'%(formatted_now_time)
+    # # print(last_time_updated_postfix)
 
+    # board_data_dir = names.board_data_dir_prefix + last_time_updated_postfix 
+    # if not os.path.isdir(board_data_dir):
+    #     os.mkdir(board_data_dir)
 
     # responses_dir_path = './satellites/passes_from_board'
     # responses_board_dir_path = './' + names.satellites_dir_name + '/' + names.responses_dir_name + names.last_time_updated_postfix 
-    responses_board_dir_path = names.responses_board_dir_path + last_time_updated_postfix 
+    # responses_board_dir_path = names.responses_board_dir_path + last_time_updated_postfix 
+
+    responses_board_dir_path = '%s/%s'%(
+        board_data_dir_path,
+        names.responses_board_dir_name
+    )
+
+
     if not os.path.isdir(responses_board_dir_path):
         os.mkdir(responses_board_dir_path)
 
@@ -142,18 +152,21 @@ def create_responses_board_files(response_list):
             file.write(line)
     
 
-def create_commands_board_files(command_list):
-    now_time = datetime.datetime.now()
-    formatted_now_time = now_time.strftime('%Y-%m-%d_%H:%M:%S')
-    # print(formatted_now_time)
-    last_time_updated_postfix = '_updated_%s'%(formatted_now_time)
-    # print(last_time_updated_postfix)
-
+def create_commands_board_files(command_list, board_data_dir_path):
+    # now_time = datetime.datetime.now()
+    # formatted_now_time = now_time.strftime('%Y-%m-%d_%H:%M:%S')
+    # # print(formatted_now_time)
+    # last_time_updated_postfix = '_updated_%s'%(formatted_now_time)
+    # # print(last_time_updated_postfix)
 
     # shedules_folder = './satellites/shedules_from_board'
     # commands_dir_path = './' + names.satellites_dir_name + '/' + names.commands_board_dir_name + names.last_time_updated_postfix
 
-    commands_board_dir_path = names.commands_board_dir_path + last_time_updated_postfix 
+    # commands_board_dir_path = names.commands_board_dir_path + last_time_updated_postfix 
+    commands_board_dir_path = '%s/%s'%(
+        board_data_dir_path,
+        names.commands_board_dir_name
+    )
 
     if not os.path.isdir(commands_board_dir_path):
         os.mkdir(commands_board_dir_path)
@@ -199,6 +212,21 @@ def get_decoded_list_of_satellites_data(serial_port):
         return
 
 def parse_list_create_files(decoded_satellite_list):
+    now_time = datetime.datetime.now()
+    formatted_now_time = now_time.strftime('%Y-%m-%d_%H:%M:%S')
+    # print(formatted_now_time)
+    last_time_updated_postfix = '_updated_%s'%(formatted_now_time)
+    # print(last_time_updated_postfix)
+
+    board_data_dir_path = '%s/%s%s'%(
+        names.satellites_dir_path,
+        names.board_data_dir_prefix,
+        last_time_updated_postfix
+    )
+
+    if not os.path.isdir(board_data_dir_path):
+        os.mkdir(board_data_dir_path)
+
     satellite_list = []
     # create files for each satellite in input_list :
     start_index = 0
@@ -206,8 +234,11 @@ def parse_list_create_files(decoded_satellite_list):
         if (decoded_satellite_list[element_index] == 'END_OF_THE_FILE\n'): 
             last_index = element_index
             satellite_list = decoded_satellite_list[start_index:last_index]
-            # create_files_by_response_list(satellite_list)
-            # create_responses_board_files(satellite_list)
-            create_commands_board_files(satellite_list)
+
+            print(satellite_list[0].split('=')[0], end='\n')
+            if satellite_list[0].split('=')[0] == 'norad':
+                create_commands_board_files(satellite_list, board_data_dir_path)
+            else:
+                create_responses_board_files(satellite_list, board_data_dir_path)
             start_index = last_index + 1
     print('List parsed, files created')
