@@ -7,7 +7,7 @@ import text_handler
 # import names
 
 
-def update_data(request_options_file):
+def update_data_create_files(request_options_file):
     if os.stat(request_options_file).st_size == 0:
         print('ОШИБКА! Нет данных о спутниках для совершения запросов на сервер')
     else:
@@ -17,11 +17,11 @@ def update_data(request_options_file):
             for line in file:
                 input_satellites.append(line)
         
-        # test print
-        print('input satellites data:')
-        for sat_req_data in input_satellites:
-            print(sat_req_data, end='')
-        print()
+        # test print (need to check what we have in options file)
+        # print('input satellites data:')
+        # for sat_req_data in input_satellites:
+        #     print(sat_req_data, end='')
+        # print()
 
         # satellites_dir = 'satellites'
         # passes_dir = 'responses'

@@ -7,7 +7,7 @@ timeout_s = number_of_satellites + 5 # we need this to synchronise python script
 
 serial_port = text_handler.initialize_port(timeout_s)
 if(serial_port.is_open):
-    command_sender.command_handler(serial_port)
+    command_sender.init_command_handler(serial_port)
     serial_port.close()
 else:
     print("ОШИБКА! UART ЗАКРЫТ, РАБОТА НЕВОЗМОЖНА! НАСТРОЙТЕ UART")

@@ -22,8 +22,9 @@ def initialize_port(timeout_s):
 # creating file (and corresponding directories) by list of data in special format, if it does not exist and write to it
 # TODO rename file to create_command_file_by_list
 def create_files_by_response_list(response_list):
-    # test print
-    print(response_list)
+
+    # test print (what we have in one response over http(s))
+    # print(response_list)
 
     if(len(response_list) == 0 or response_list[0] == 'END_OF_THE_FILE\n'):
         print('ERROR! YOU TRY TO CREATE FILE FROM EMPTY STRING')
@@ -33,14 +34,14 @@ def create_files_by_response_list(response_list):
     # passes_info_folder_name = 'passes_full'
     # passes_input_folder_name = 'commands'
 
-    if not os.path.isdir(names.satellites_dir_path):
-        os.mkdir(names.satellites_dir_path)
+    # if not os.path.isdir(names.satellites_dir_path):
+    #     os.mkdir(names.satellites_dir_path)
     # responses_dir_path = './' + names.satellites_dir + '/' + names.responses_dir_name
-    if not os.path.isdir(names.responses_dir_path):
-        os.mkdir(names.responses_dir_path)
-    # commands_dir_path = './' + names.satellites_dir + '/' + names.commands_dir_name
-    if not os.path.isdir(names.commands_dir_path):
-        os.mkdir(names.commands_dir_path)
+    # if not os.path.isdir(names.responses_dir_path):
+    #     os.mkdir(names.responses_dir_path)
+    # # commands_dir_path = './' + names.satellites_dir + '/' + names.commands_dir_name
+    # if not os.path.isdir(names.commands_dir_path):
+    #     os.mkdir(names.commands_dir_path)
 
     # test print
     # print(response_list)
