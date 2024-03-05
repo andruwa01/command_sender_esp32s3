@@ -4,6 +4,7 @@ import api_key as ak
 import os
 from time import strftime, localtime
 import text_handler
+import names
 # import names
 
 
@@ -11,6 +12,15 @@ def update_data_create_files(request_options_file):
     if os.stat(request_options_file).st_size == 0:
         print('ОШИБКА! Нет данных о спутниках для совершения запросов на сервер')
     else:
+        # remove old commands and responses files (if files are there)
+        if os.listdir(names.commands_dir_path) and os.listdir(names.responses_dir_path):
+            for file_command in os.listdir(names.commands_dir_path):
+                file_command_path = names.commands_dir_path + '/' + file_command
+                os.remove(file_command_path)
+            for file_request in os.listdir(names.responses_dir_path):
+                file_request_path = names.responses_dir_path + '/' + file_request
+                os.remove(file_request_path)
+
         input_satellites = []
 
         with open(request_options_file, 'r') as file:

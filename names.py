@@ -4,9 +4,7 @@ import os
 
 now_time = datetime.datetime.now()
 formatted_now_time = now_time.strftime('%Y-%m-%d_%H:%M:%S')
-# print(formatted_now_time)
 last_time_updated_postfix = '_updated_%s'%(formatted_now_time)
-# print(last_time_updated_postfix)
 
 satellites_dir_name      = 'satellites_info'
 responses_dir_name       = 'responses' 
@@ -23,22 +21,10 @@ response_board_postfix   = '_board_response'
 command_board_postfix    = '_board_command'
 
 request_options_file_name  = 'requests_input_options'
-# request_input_options_file_path    = './' + satellites_dir_name + '/' + input_options_file_name + '.txt'  
-# test
 
 satellites_dir_local_path = './%s'%(satellites_dir_name)
 
-# if not os.path.isdir(satellites_dir_local_path):
-#     os.mkdir(satellites_dir_local_path)
-
-
 satellites_dir_path = os.path.abspath(satellites_dir_local_path)
-
-# request_options_file_path = ''
-# responses_dir_path = ''
-# commands_dir_path = ''
-# responses_board_dir_path = ''
-# commands_board_dir_path = ''
 
 request_options_file_path = '%s/%s.txt'%(
     satellites_dir_path,
@@ -67,7 +53,6 @@ if not os.path.isdir(satellites_dir_path):
 
 if not os.path.isdir(responses_dir_path):
         os.mkdir(responses_dir_path)
-    # commands_dir_path = './' + names.satellites_dir + '/' + names.commands_dir_name
 if not os.path.isdir(commands_dir_path):
     os.mkdir(commands_dir_path)
 

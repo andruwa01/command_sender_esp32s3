@@ -6,12 +6,12 @@ import datetime
 
 def initialize_port(timeout_s):
     port_instance = serial.Serial(
-    port='/dev/ttyUSB0',
-    baudrate=115200,
-    bytesize=8,
-    stopbits=serial.STOPBITS_ONE,
-    parity=serial.PARITY_EVEN,
-    timeout=timeout_s,
+        port='/dev/ttyUSB0',
+        baudrate=115200,
+        bytesize=8,
+        stopbits=serial.STOPBITS_ONE,
+        parity=serial.PARITY_EVEN,
+        timeout=timeout_s,
     )
 
     port_instance.reset_input_buffer()
@@ -22,7 +22,6 @@ def initialize_port(timeout_s):
 # creating file (and corresponding directories) by list of data in special format, if it does not exist and write to it
 # TODO rename file to create_command_file_by_list
 def create_files_by_response_list(response_list):
-
     # test print (what we have in one response over http(s))
     # print(response_list)
 
@@ -54,7 +53,6 @@ def create_files_by_response_list(response_list):
 
     command_file_path      = names.commands_dir_path  + '/' + str(sat_id) + names.command_postfix      + '.txt'
     command_temp_file_path = names.commands_dir_path  + '/' + str(sat_id) + names.command_temp_postfix + '.txt'
-
     response_file_path     = names.responses_dir_path + '/' + str(sat_id) + names.response_postfix     + '.txt'
     # passes_file_path = passes_info_path + '/' + str(sat_name) + '.txt'
 
