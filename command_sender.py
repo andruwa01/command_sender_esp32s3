@@ -20,6 +20,12 @@ time.sleep(time_to_wait_s)
 
 def init_command_handler(serial_port):
 
+    text_border_top =    '\n<==============================ВЫВОД=====================================>\n'
+    text_border_bottom = '\n<============================КОНЕЦ ВЫВОДА================================>\n'
+
+    context_python_ready      = 'python ready to send another command'
+    context_board_get_command = 'board get command' 
+
     command_help =                      'help'
     command_change_options_file =       'change options'
     command_update_shedule =            'update shedule'
@@ -29,6 +35,7 @@ def init_command_handler(serial_port):
     command_get_spiffs_info =           'spiffs get info' 
     command_load_data_to_spiffs =       'spiffs load'
     command_stop =                      'stop'
+    command_test =                      'command test'
 
     names.update_names(names.request_options_file_name)
 
@@ -44,7 +51,8 @@ def init_command_handler(serial_port):
         # command_binary = command.encode()
 
         if(command == command_help):
-            print('\n<========================================================================>', end='\n')
+            print(text_border_top)
+
             print('СПИСОК ДОСТУПНЫХ КОМАНД:', end='\n\n')
             print("{:25s} -> обновить имя файла с настройками".format(
                 command_change_options_file
@@ -68,7 +76,23 @@ def init_command_handler(serial_port):
                 names.commands_dir_name,
             ))
             print("{:25s} -> выйти из программы".format(command_stop))
-            print('<========================================================================>', end='\n\n')
+
+            print(text_border_bottom)
+        
+        elif(command == command_test):
+            command_binary = command_test.encode()
+            # send test command
+            serial_port.write(command_binary)
+
+            print('Test action')
+
+            send_response_to_board(serial_port)
+
+            # wait until board finished working
+            wait_response_from_board(serial_port)
+
+            # wait end of the command processing in board
+            wait_response_from_board(serial_port)
 
         elif(command == command_change_options_file):
             old_options_name = names.request_options_file_name
@@ -118,24 +142,35 @@ def init_command_handler(serial_port):
             number_of_bytes = serial_port.write(command_binary)
             print('command %s sent, size: %i bytes'%(command_binary, number_of_bytes))
 
-            # wait response from board about readiness of waiting list of satellites
-            wait_response_from_board(serial_port)
+            wait_response_from_board(serial_port, 'board get command')
+
+            wait_response_from_board(serial_port, 'board ready to wait list of satellites')
 
             sended_bytes = 0
 
             # create list of command_names
             list_of_names = []
 
+            # wait_response_from_board(serial_port, 'wait signal that board ready to read data')
+
+            send_response_to_board(serial_port, 'signal to board that it can read sended data')
+
             with open(names.request_options_file_path, 'r') as file_pass:
                 for line in file_pass:
                     sat_id = line.split('=')[1]
                     data_bytes_by_file_name = serial_port.write(sat_id.encode())
+
                     list_of_names.append(sat_id)
                     sended_bytes += data_bytes_by_file_name
 
             print("data: %s sent, size: %i bytes"%(list_of_names, sended_bytes))
 
-            wait_response_from_board(serial_port)
+
+            serial_port.reset_output_buffer()
+            serial_port.cancel_write()
+
+            # send_response_to_board(serial_port, 'finish sending list of satellites')
+            wait_response_from_board(serial_port, context_python_ready)
         
         elif(command == command_get_spiffs_info):
             files_sized_in_pc = 0
@@ -144,16 +179,22 @@ def init_command_handler(serial_port):
             number_of_bytes = serial_port.write(command_binary)
             print('command %s sent, size: %i bytes'%(command_binary, number_of_bytes))
 
+            wait_response_from_board(serial_port, "wait info that board get command")
+            send_response_to_board(serial_port, "ready to read data")
+
             # get data from uart
             spiffs_general_info = serial_port.readline().decode()
 
             # continue working only if board finished sending first part of spiffs statistics
-            wait_response_from_board(serial_port)
+            wait_response_from_board(serial_port, "wait when board finish sending first part of info")
 
-            print("start waiting files stats. . .")
+            # send signal to board that we are ready to read informations about files
+            send_response_to_board(serial_port, "ready to read information about files")
+
+            # print("start waiting files stats. . .")
             # spiffs_files_info = serial_port.read_until('end') 
             spiffs_files_info = serial_port.readlines()
-            print(spiffs_files_info)
+            # print(spiffs_files_info)
 
             # parse info values
             spiffs_info_values = spiffs_general_info[spiffs_general_info.index(' ') + 1:spiffs_general_info.index('\n')]
@@ -181,9 +222,11 @@ def init_command_handler(serial_port):
                 ))
                 return
             else:
-                print('\nПри отправке файлов будет записано %i байт в spiffs, свободное место есть'%(files_sized_in_pc))
+                print(text_border_top)
+                print('При отправке файлов будет записано %i байт в spiffs, свободное место есть'%(
+                    files_sized_in_pc), end='\n\n')
 
-            print('\nСтатистика по spiffs:')
+            print('Статистика по spiffs:')
             print('Использовано места (байт): {:>}'.format(str(used_value)))
             print('Всего места в spiffs (байт): {:>}'.format(str(total_value)))
             print('Осталось свободного места (байт): {:>}'.format(str(free_space_value)))
@@ -197,36 +240,40 @@ def init_command_handler(serial_port):
             else:
                 print('SPIFFS пуст! Не найдена информация ни по одному из файлов')
 
-            print('Конец статистики', end='\n\n')
+            # print('\nКонец статистики', end='\n')
+            print(text_border_bottom)
 
-            # wait_response_from_board(serial_port)
+            send_response_to_board(serial_port, "send signal that we finished working with files")
+
+            wait_response_from_board(serial_port, context_python_ready)
         
         elif(command == command_update_shedule):
             # perform requests
             https_req.update_data_create_files(names.request_options_file_path)
 
         elif(command == command_load_data_to_spiffs):
-
             command_binary = 'load spiffs data to pc'.encode()
             # write command to uart buffer
             number_of_bytes = serial_port.write(command_binary)
             print('command %s sent, size %i bytes'%(command_binary, number_of_bytes))
 
-            # wait response from board that it read command correctly
-            wait_response_from_board(serial_port)
+            # continue when board get command
+            wait_response_from_board(serial_port, "board get command")
             
+            # send signal that we are ready to getting free_space info
+            send_response_to_board(serial_port, "ready to get info about free space in spiffs")
             # read size that we already have (and check if there is enough space in spiffs for data)
             free_space_line = serial_port.readline()
             free_space_value = int(free_space_line.decode().split('=')[1].strip('\n'))
 
-            # compare sizes
+            # wait_response_from_board(serial_port)
 
+            # compare sizes
             pc_files_size = 0
             for file_pass in os.listdir(names.responses_dir_path):
                 file_path = names.responses_dir_path + '/' + file_pass
                 pc_files_size += os.path.getsize(file_path)
 
-           
             for user_param in os.listdir(names.commands_dir_path):
                 file_path = names.commands_dir_path + '/' + user_param
                 pc_files_size += os.path.getsize(file_path)
@@ -239,23 +286,30 @@ def init_command_handler(serial_port):
             # test print
             # print('free space value: %i'%free_space_value)
 
-            # wait signal that python can continue work 
-            wait_response_from_board(serial_port)
+            # send signal to board that we finished working with info data
+            send_response_to_board(serial_port, 'python finished working with info data')
+
+            # wait signal that python can load files with data 
+            wait_response_from_board(serial_port, 'python can loda files with data')
 
             for file_pass in os.listdir(names.responses_dir_path):
                 file_path = names.responses_dir_path + '/' + file_pass
                 print(file_path)
                 send_file_over_uart(file_path, serial_port)
-                wait_response_from_board(serial_port)
+                wait_response_from_board(serial_port, 'new file ready')
             
             for user_param in os.listdir(names.commands_dir_path):
                 file_path = names.commands_dir_path + '/' + user_param
                 send_file_over_uart(file_path, serial_port)
-                wait_response_from_board(serial_port)
+                wait_response_from_board(serial_port, 'new file ready')
 
             serial_port.write('END FILES TRANSMISSION'.encode())
 
-            wait_response_from_board(serial_port)
+            # wait singnal that board finished working with files
+            wait_response_from_board(serial_port, 'board finished working with files')
+
+            # wait signal that we can read another command
+            wait_response_from_board(serial_port, context_python_ready)
 
         elif(command == command_stop):
             print('ПРОГРАММА ОСТАНОВЛЕНА . . .', end='\n\n')
@@ -298,31 +352,62 @@ def send_file_over_uart(file_path, serial_port):
    # clear data form buffer (to not mix data)
     serial_port.reset_output_buffer()
 
-def send_response_to_board(serial_port):
+def send_response_to_board(serial_port, message_about_sending):
+
     if(serial_port.is_open):
-        print('Sending response to board . . .')
-        response_encoded = 'RESPONSE FROM PC'.encode()
+        # test sleep
+        time.sleep(1)
+
+        # serial_port.reset_output_buffer()
+
+        # print('Sending response to board . . .')
+        print('send context: %s'%(message_about_sending))
+
+        # serial_port.cancel_write()
+        # serial_port.reset_output_buffer()
+
+        # time.sleep(5)
+
+        response_encoded = 'NEXT_ACTION_BOARD'.encode()
         sended_bytes = serial_port.write(response_encoded)
-        print("data: %s sent, size: %i bytes"%(response_encoded, sended_bytes))
+        # print("data: %s sent, size: %i bytes"%(response_encoded, sended_bytes))
+
+        # give a few seconds before next line of code in python script 
+        time.sleep(1)
+
+        serial_port.reset_output_buffer()
+        serial_port.reset_input_buffer()
+        
     else:
         print("ERROR! Port is not opened")
         return
 
-def wait_response_from_board(serial_port):
+def wait_response_from_board(serial_port, waiting_event):
+    print('wait event: %s'%(waiting_event))
+
+    # TODO check if it could be deleted
+    # give a few seconds to read info in uart (to read it)
+    time.sleep(1)
+
     if(serial_port.is_open):
-        print('Wait response from board . . .')
+        # print('Wait response from board . . .')
+        # print(waiting_event)
+        print('wait context: %s'%(waiting_event))
 
         response = ''
         while(response != 'NEXT_ACTION\n'):
             response = serial_port.readline().decode()
-            print('uart get something...')
+            print('wrong line in UART. . .')
         
-        print('Got response!')
+        # print('Got response!')
 
         # erase response from input buffer
         serial_port.reset_input_buffer()
         # erase output buffer commands
         serial_port.reset_output_buffer()
+
+        # test sleep
+        time.sleep(1)
     else:
         print("ERROR! Port is not opened")
         return

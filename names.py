@@ -50,12 +50,10 @@ commands_board_dir_path = '%s/%s'%(
 
 if not os.path.isdir(satellites_dir_path):
     os.mkdir(satellites_dir_path)
-
 if not os.path.isdir(responses_dir_path):
-        os.mkdir(responses_dir_path)
+    os.mkdir(responses_dir_path)
 if not os.path.isdir(commands_dir_path):
     os.mkdir(commands_dir_path)
-
 if not os.path.exists(request_options_file_path):
     with open(request_options_file_path, 'w') as file:
         file.write('norbi=46494\n')
