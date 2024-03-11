@@ -37,14 +37,14 @@ def init_command_handler(serial_port):
     command_stop =                      'stop'
     command_test =                      'command test'
 
-    names.update_names(names.request_options_file_name)
+    names.update_names(names.request_options_file_name_txt)
 
     while True:
         serial_port.reset_input_buffer()
         serial_port.reset_output_buffer()
 
-        print('Текущее имя файла настроек: %s'%(
-            names.request_options_file_name
+        print('\nТекущий файл настроек: %s'%(
+            names.request_options_file_name_txt
         ))
         print("{:20s} -> показать список доступных команд".format(command_help))
         command = str(input("ВВЕДИТЕ КОМАНДУ: "))
@@ -54,24 +54,31 @@ def init_command_handler(serial_port):
             print(text_border_top)
 
             print('СПИСОК ДОСТУПНЫХ КОМАНД:', end='\n\n')
-            print("{:25s} -> обновить имя файла с настройками".format(
+            print("{:25s} -> обновить имя файла с настройками, текущий файл %s".format(
                 command_change_options_file
+            )%(
+                names.request_options_file_name_txt
             ))
             print("{:25s} -> обновить данные о прогнозах (в папках %s и %s) по имеющемуся файлу настроек %s".format(command_update_shedule)%(
                 names.responses_dir_name,
                 names.commands_dir_name,
-                names.request_options_file_name
+                names.request_options_file_name_txt
             ))
             print("{:25s} -> очистить файлы spiffs в соответствии с файлом настроек %s в esp32 (иначе может произойти переполнение памяти)".format(command_clear_spiffs)%(
-                names.request_options_file_name
+                names.request_options_file_name_txt
             ))
             print("{:25s} -> очистить ВСЕ файлы, которые есть в spiffs на данный момент".format(command_clear_all_spiffs))
             # print("{:25s} -> (для всех спутников) сделать запросы на сервер за новыми данными, запись их в spiffs".format(command_get_requests))
-            print("{:25s} -> (для всех спутников) получить данные из spiffs, записать их в соответствующие файлы для текующей даты".format(command_get_spiffs_data))
+            print("{:25s} -> получить данные из spiffs в соответствии с файлом настроек %s, записать их в соответствующие файлы для текующей даты".format(command_get_spiffs_data)%(
+                names.request_options_file_name_txt
+            ))
             # print("{:25s} -> создать файлы с данными по текущему имеющемуся буферу".format(command_parse_buffer_create_files))
             # print("{:25s} -> отправить список настроек из файла в spiffs, записать файлы в spiffs".format(command_push_command_files))
-            print("{:25s} -> получить данные о заполненности spiffs, проверить, поместятся ли полученные данные при их отправке туда".format(command_get_spiffs_info))
-            print("{:25s} -> загрузить данные о прогнозах в spiffs из папок %s и %s".format(command_load_data_to_spiffs)%(
+            print("{:25s} -> получить данные о заполненности spiffs, проверить, поместятся файлы в папках %s и %s при их отправке туда".format(command_get_spiffs_info)%(
+                names.responses_dir_name,
+                names.commands_dir_name
+            ))
+            print("{:25s} -> загрузить файлы из папок %s и %s и загрузить их в spiffs".format(command_load_data_to_spiffs)%(
                 names.responses_dir_name,
                 names.commands_dir_name,
             ))
@@ -95,12 +102,12 @@ def init_command_handler(serial_port):
             wait_response_from_board(serial_port)
 
         elif(command == command_change_options_file):
-            old_options_name = names.request_options_file_name
-            file_options_name_txt = str(input('Имя файла настроек: '))
+            old_options_name = names.request_options_file_name_txt
+            file_options_name_txt = str(input('Имя файла настроек (с .txt): '))
             names.update_names(file_options_name_txt)
-            print('Файл с настройками был изменён с файла %s\nна файл %s'%(
+            print('Файл с настройками был изменён с файла %s.txt\nна файл %s.txt'%(
                 old_options_name,
-                names.request_options_file_name
+                names.request_options_file_name_txt
             ))
 
         elif(command == command_get_spiffs_data):
@@ -108,19 +115,20 @@ def init_command_handler(serial_port):
             number_of_bytes = serial_port.write(command_binary)
             print('command %s sent, size: %i bytes'%(command_binary, number_of_bytes))
 
-            # wait signal from board that it got command 
-            wait_response_from_board(serial_port)
+            wait_response_from_board(serial_port, context_board_get_command)
 
             send_file_over_uart(names.request_options_file_path, serial_port)
 
             # wait signal from board that it read input_options.txt file
-            wait_response_from_board(serial_port)
+            wait_response_from_board(serial_port, 'waiting signal from board that it read %s.txt file'%(
+                names.request_options_file_name_txt
+            ))
 
             serial_port.write('END FILES TRANSMISSION'.encode())
             print('END FILE TRANSMISSION')
 
             # wait response from board that it got finished managing file
-            wait_response_from_board(serial_port)
+            wait_response_from_board(serial_port, 'waiting signal from board that it finished managing file')
 
             # get list of responses from board
             responses_list = text_handler.get_decoded_list_of_satellites_data(serial_port)
@@ -128,14 +136,16 @@ def init_command_handler(serial_port):
             # parse list of responses from board to corresponding files
             text_handler.parse_list_create_files(responses_list)
 
-            wait_response_from_board(serial_port) 
+            send_response_to_board(serial_port, 'we finished handling file data (data files)')
+
+            wait_response_from_board(serial_port, context_python_ready)
 
         elif(command == command_clear_all_spiffs):
             command_binary = 'clean all'.encode()
             number_of_bytes = serial_port.write(command_binary)
             print('command %s sent, size: %i bytes'%(command_binary, number_of_bytes))
 
-            wait_response_from_board(serial_port)
+            wait_response_from_board(serial_port, 'spiffs files erased')
 
         elif(command == command_clear_spiffs):
             command_binary = 'clean spiffs'.encode()
@@ -280,7 +290,7 @@ def init_command_handler(serial_port):
 
             if free_space_value < pc_files_size:
                 print('ОШИБКА! Недостаточно места в spiffs для записи, освободите его перед записью файлов')
-                wait_response_from_board(serial_port)
+                wait_response_from_board(serial_port, 'wait until board ends performs command')
                 return
 
             # test print

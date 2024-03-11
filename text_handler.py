@@ -212,7 +212,7 @@ def get_decoded_list_of_satellites_data(serial_port):
 
 def parse_list_create_files(decoded_satellite_list):
     now_time = datetime.datetime.now()
-    formatted_now_time = now_time.strftime('%Y-%m-%d_%H:%M:%S')
+    formatted_now_time = now_time.strftime(names.time_format)
     # print(formatted_now_time)
     last_time_updated_postfix = '_updated_%s'%(formatted_now_time)
     # print(last_time_updated_postfix)
@@ -235,6 +235,7 @@ def parse_list_create_files(decoded_satellite_list):
             satellite_list = decoded_satellite_list[start_index:last_index]
 
             print(satellite_list[0].split('=')[0], end='\n')
+
             if satellite_list[0].split('=')[0] == 'norad':
                 create_commands_board_files(satellite_list, board_data_dir_path)
             else:
