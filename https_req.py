@@ -20,7 +20,7 @@ def update_data_create_files(request_options_file):
         with open(names.request_options_file_path, 'r') as file_opt:
             for line in file_opt:
                 #TODO обработать исключение, когда пустая строчка
-                sat_id = line.split('=')[1]
+                sat_id = line.split('=')[1].strip('\n')
                 sat_id_list.append(sat_id)
 
 
@@ -28,27 +28,27 @@ def update_data_create_files(request_options_file):
         # TODO удалюятся изначальные значения файлов, изменить это
         # remember_saved_files = []
         # remove old commands and responses files (if files are there)
-        # if os.listdir(names.commands_dir_path) and os.listdir(names.responses_dir_path):
+        if os.listdir(names.commands_dir_path) and os.listdir(names.responses_dir_path):
 
-            # TODO сделать так, чтобы файлы, которые не совпадают с файлами в списке настроек удалялись, а файлы, которые совпадают - просто 
-            # обновлялись поля, которые были без пользовательского ввода
-            # for sat_id in sat_id_list:
-            #     for file_command in os.listdir(names.commands_dir_path):
-            #         for saved_file in remember_saved_files:
-            #             if file_command.strip(names.command_postfix + '.txt') != sat_id and file_command != saved_file:
+            for file_command in os.listdir(names.commands_dir_path):
+                sat_id_file = file_command.strip(names.command_postfix + '.txt')
+                print(sat_id_file)
+                delete_flag = False
 
-            #                 file_command_path = names.commands_dir_path + '/' + file_command
-            #                 os.remove(file_command_path)
-            #                 remember_saved_files.append(file_command)
+                for sat_id in sat_id_list:
+                    if sat_id_file != sat_id:
+                        delete_flag = True
+                    else:
+                        delete_flag = False
+                        break
 
-            # TODO 
-            # for file_command in os.listdir(names.commands_dir_path):
-            #     file_command_path = names.commands_dir_path + '/' + file_command
-            #     os.remove(file_command_path)
+                if delete_flag == True:
+                    file_command_path = names.commands_dir_path + '/' + file_command
+                    os.remove(file_command_path)
 
-            # for file_response in os.listdir(names.responses_dir_path):
-            #     file_request_path = names.responses_dir_path + '/' + file_response
-            #     os.remove(file_request_path)
+            for file_response in os.listdir(names.responses_dir_path):
+                file_request_path = names.responses_dir_path + '/' + file_response
+                os.remove(file_request_path)
 
         input_satellites = []
 

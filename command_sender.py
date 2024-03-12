@@ -54,6 +54,7 @@ def init_command_handler(serial_port):
             print(text_border_top)
 
             print('СПИСОК ДОСТУПНЫХ КОМАНД:', end='\n\n')
+            print("{:25s} -> тестовая команда (потом убрать)".format(command_test))
             print("{:25s} -> обновить имя файла с настройками, текущий файл %s".format(
                 command_change_options_file
             )%(
@@ -91,15 +92,15 @@ def init_command_handler(serial_port):
             # send test command
             serial_port.write(command_binary)
 
-            print('Test action')
+            wait_response_from_board(serial_port, context_board_get_command)
 
-            send_response_to_board(serial_port)
+            send_response_to_board(serial_port, 'send signal to board that python sends data')
+            serial_port.send_break(1)
 
-            # wait until board finished working
-            wait_response_from_board(serial_port)
+            send_file_over_uart(names.request_options_file_path, serial_port)
 
             # wait end of the command processing in board
-            wait_response_from_board(serial_port)
+            wait_response_from_board(serial_port, context_python_ready)
 
         elif(command == command_change_options_file):
             old_options_name = names.request_options_file_name_txt
@@ -167,11 +168,15 @@ def init_command_handler(serial_port):
 
             with open(names.request_options_file_path, 'r') as file_pass:
                 for line in file_pass:
-                    sat_id = line.split('=')[1]
-                    data_bytes_by_file_name = serial_port.write(sat_id.encode())
+                    if not line in ['\n', '\r\n']:
+                        sat_id = line.split('=')[1]
 
-                    list_of_names.append(sat_id)
-                    sended_bytes += data_bytes_by_file_name
+                        if not sat_id.endswith('\n'):
+                            sat_id += '\n'
+
+                        data_bytes_by_file_name = serial_port.write(sat_id.encode())
+                        list_of_names.append(sat_id)
+                        sended_bytes += data_bytes_by_file_name
 
             print("data: %s sent, size: %i bytes"%(list_of_names, sended_bytes))
 
@@ -263,6 +268,7 @@ def init_command_handler(serial_port):
 
         elif(command == command_load_data_to_spiffs):
             command_binary = 'load spiffs data to pc'.encode()
+
             # write command to uart buffer
             number_of_bytes = serial_port.write(command_binary)
             print('command %s sent, size %i bytes'%(command_binary, number_of_bytes))
@@ -304,7 +310,10 @@ def init_command_handler(serial_port):
 
             for file_pass in os.listdir(names.responses_dir_path):
                 file_path = names.responses_dir_path + '/' + file_pass
+
+                # test print
                 print(file_path)
+
                 send_file_over_uart(file_path, serial_port)
                 wait_response_from_board(serial_port, 'new file ready')
             
@@ -330,6 +339,10 @@ def init_command_handler(serial_port):
             print()
 
 def send_file_over_uart(file_path, serial_port):
+    
+    # TODO check if file is empty
+    # TODO handle case when symbol of last string in options file is not ''
+
     # send data for one satellite
     data_from_file = []
     with open(file_path, 'r') as command_file:
@@ -357,6 +370,7 @@ def send_file_over_uart(file_path, serial_port):
     end_bytes = serial_port.write('END_FILE\n'.encode())
     data_bytes += end_bytes
 
+    # test print
     print("data: %s sent, size: %i bytes"%(data_from_file_binary, data_bytes))
 
    # clear data form buffer (to not mix data)
@@ -368,19 +382,10 @@ def send_response_to_board(serial_port, message_about_sending):
         # test sleep
         time.sleep(1)
 
-        # serial_port.reset_output_buffer()
-
-        # print('Sending response to board . . .')
         print('send context: %s'%(message_about_sending))
 
-        # serial_port.cancel_write()
-        # serial_port.reset_output_buffer()
-
-        # time.sleep(5)
-
         response_encoded = 'NEXT_ACTION_BOARD'.encode()
-        sended_bytes = serial_port.write(response_encoded)
-        # print("data: %s sent, size: %i bytes"%(response_encoded, sended_bytes))
+        serial_port.write(response_encoded)
 
         # give a few seconds before next line of code in python script 
         time.sleep(1)
