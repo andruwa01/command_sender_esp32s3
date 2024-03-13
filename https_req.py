@@ -37,7 +37,6 @@ def update_data_create_files(request_options_file):
 
             for file_command in os.listdir(names.commands_dir_path):
                 sat_id_file = file_command.strip(names.command_postfix + '.txt')
-                print(sat_id_file)
                 delete_flag = False
 
                 for sat_id in sat_id_list:

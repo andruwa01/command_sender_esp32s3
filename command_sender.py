@@ -97,13 +97,22 @@ def init_command_handler(serial_port):
             old_options_name = names.request_options_file_name_txt
             file_options_name_txt = str(input('Имя файла настроек (с .txt): '))
             names.update_names(file_options_name_txt)
+
+            with open(names.request_options_file_path, 'r') as options_file:
+                sat_counter = 0
+                for line in options_file:
+                    if not line in ['\n', '\r\n']:
+                        sat_counter += 1
+            port_settings = serial_port.get_settings()
+            # change timeout value in settings of port to correctly read data when use realines() funciton
+            port_settings['timeout'] = sat_counter
             print('Файл с настройками был изменён с файла %s.txt\nна файл %s.txt'%(
                 old_options_name,
                 names.request_options_file_name_txt
             ))
 
         elif(command == command_get_spiffs_data):
-            command_binary = 'give spiffs data to pc'.encode()
+            command_binary = 'send spiffs data to pc'.encode()
             number_of_bytes = serial_port.write(command_binary)
             print('command %s sent, size: %i bytes'%(command_binary, number_of_bytes))
 
@@ -258,7 +267,7 @@ def init_command_handler(serial_port):
             https_req.update_data_create_files(names.request_options_file_path)
 
         elif(command == command_load_data_to_spiffs):
-            command_binary = 'load spiffs data to pc'.encode()
+            command_binary = 'load pc data to spiffs'.encode()
 
             # write command to uart buffer
             number_of_bytes = serial_port.write(command_binary)

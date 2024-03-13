@@ -1,5 +1,6 @@
 import text_handler
 import command_sender
+import names
 
 # TODO count number of satellites from information about input_options 
 # number_of_satellites = 15            # number of satellites
