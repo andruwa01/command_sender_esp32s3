@@ -211,6 +211,10 @@ def get_decoded_list_of_satellites_data(serial_port):
         return
 
 def parse_list_create_files(decoded_satellite_list):
+    if not decoded_satellite_list:
+        print('В spiffs отсутствуют данные!')
+        return
+
     now_time = datetime.datetime.now()
     formatted_now_time = now_time.strftime(names.time_format)
     # print(formatted_now_time)

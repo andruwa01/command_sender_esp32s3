@@ -17,13 +17,18 @@ def update_data_create_files(request_options_file):
         # buffer
         sat_id_list = []
 
-        with open(names.request_options_file_path, 'r') as file_opt:
+        with open(request_options_file, 'r') as file_opt:
             for line in file_opt:
-                #TODO обработать исключение, когда пустая строчка
-                sat_id = line.split('=')[1].strip('\n')
-                sat_id_list.append(sat_id)
+                if not line in ['\n', '\r\n']:
+                    sat_id = line.split('=')[1]
 
+                    if sat_id.endswith('\n'):
+                        sat_id = sat_id.strip('\n')
 
+                    sat_id_list.append(sat_id)
+
+        print(sat_id_list)
+        
 
         # TODO удалюятся изначальные значения файлов, изменить это
         # remember_saved_files = []
@@ -50,11 +55,11 @@ def update_data_create_files(request_options_file):
                 file_request_path = names.responses_dir_path + '/' + file_response
                 os.remove(file_request_path)
 
-        input_satellites = []
+        # input_satellites = []
 
-        with open(request_options_file, 'r') as file:
-            for line in file:
-                input_satellites.append(line)
+        # with open(request_options_file, 'r') as file:
+        #     for line in file:
+        #         input_satellites.append(line)
         
         # test print (need to check what we have in options file)
         # print('input satellites data:')
@@ -81,12 +86,14 @@ def update_data_create_files(request_options_file):
 
         # iterate over each satellite from file 
         # we need it to get sat_id of each satellite and make corresponding request to n2yo api
-        for sat_req_data in input_satellites:
+
+        # for sat_req_data in input_satellites:
             # get sat_id from satellite
-            sat_id = int(sat_req_data.split('=')[1])
+            # sat_id = int(sat_req_data.split('=')[1])
+        for sat_id in sat_id_list:
 
             url_get_req = "https://api.n2yo.com/rest/v1/satellite/radiopasses/%i/%f/%f/%f/%i/%i/&apiKey=%s"%(
-                sat_id,
+                int(sat_id),
                 observer_lat,
                 observer_lng,
                 observer_alt,
@@ -128,7 +135,7 @@ def update_data_create_files(request_options_file):
             # TODO FIX IT first value:number - important pos of :
             info_values_string = 'sat_id: %i\nsat_name: %s\ntransactions_count: %i\npasses_count: %i\n'%(
             # info_values_string = 'sat_name: %s\nsat_id: %i\ntransactions_count: %i\npasses_count: %i\n'%(
-                sat_id,
+                int(sat_id),
                 sat_name,
                 transactions_count,
                 passes_counter
@@ -242,7 +249,7 @@ def update_data_create_files(request_options_file):
                     # print(max_values, end='')
 
             else:
-                print('No passes counter in response for satellite %s with id %i'%(sat_name, sat_id))
+                print('No passes counter in response for satellite %s with id %i'%(sat_name, int(sat_id)))
 
             # print('file %s was created with size: %i bytes'%(response_file_path, os.path.getsize(response_file_path)))
 

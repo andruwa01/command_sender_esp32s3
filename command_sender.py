@@ -1,17 +1,8 @@
-# Компанды , которые нужно сделать (чтобы работать с spiffs):
-
-# -[x] Получить данные для всех спутников и записать их в соответствующие файлы
-# -[] Получить данные по id спутника и записать их в файл 
-# -[] Получить список спутников с соответствующими id из spiffs
-# -[x] *Вести данные (изменения) в spiffs*
-# -[x] Обновить содержимое файлов всех спутников в spiffs
-
 import os
 import time
 import text_handler
 import https_req
 import names
-import serial
 
 time_to_wait_s = 5
 print('Program starts . . . wait %i seconds'%(time_to_wait_s))
@@ -345,8 +336,15 @@ def send_file_over_uart(file_path, serial_port):
 
     # send data for one satellite
     data_from_file = []
-    with open(file_path, 'r') as command_file:
-        data_from_file = command_file.readlines()
+    with open(file_path, 'r') as file:
+        # TEST костыль
+        for line in file:
+            if not line in ['\n', '\r\n']:
+                if not line.endswith('\n'):
+                    line += '\n'
+                data_from_file.append(line)
+                
+        # data_from_file = command_file.readlines()
 
     # clean input buffer 
     serial_port.reset_input_buffer()
@@ -354,6 +352,7 @@ def send_file_over_uart(file_path, serial_port):
     data_from_file_binary = []
 
     for item in data_from_file:
+
         data_from_file_binary.append(item.encode())
 
     # sended bytes counter
