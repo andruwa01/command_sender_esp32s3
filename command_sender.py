@@ -3,6 +3,7 @@ import time
 import text_handler
 import https_req
 import names
+from api_key import api_key
 
 time_to_wait_s = 5
 print('Program starts . . . wait %i seconds'%(time_to_wait_s))
@@ -51,10 +52,11 @@ def init_command_handler(serial_port):
             )%(
                 names.request_options_file_name_txt
             ))
-            print("{:25s} -> обновить данные о прогнозах (в папках %s и %s) по имеющемуся файлу настроек %s".format(command_update_shedule)%(
+            print("{:25s} -> обновить данные о прогнозах (в папках %s и %s) по имеющемуся файлу настроек %s\nи по имеющимся параметрам https запросов в файле %s".format(command_update_shedule)%(
                 names.responses_dir_name,
                 names.commands_dir_name,
-                names.request_options_file_name_txt
+                names.request_options_file_name_txt,
+                names.https_requests_params_file_name_txt
             ))
             print("{:25s} -> очистить файлы spiffs в соответствии с файлом настроек %s в esp32 (иначе может произойти переполнение памяти)".format(command_clear_spiffs)%(
                 names.request_options_file_name_txt
@@ -263,8 +265,25 @@ def init_command_handler(serial_port):
             wait_response_from_board(serial_port, context_python_ready)
         
         elif(command == command_update_shedule):
+
+            req_params_dict = {}
+
+            with open(names.https_requests_params_file_path, 'r') as params_file:
+                for line in params_file:
+                    if not line in ['\n', '\r\n']:
+                        if not line.endswith('\n'):
+                            line += '\n'
+                        parsed_line_list = line.strip('\n').split('=')
+                        param_name  = parsed_line_list[0]
+                        param_value_float = float(parsed_line_list[1])
+                        req_params_dict[param_name] = param_value_float
+            req_params_dict['api_key'] = api_key
+
+            print('Текущие настройки параметров для https запросов:')
+            print(req_params_dict)
+
             # perform requests
-            https_req.update_data_create_files(names.request_options_file_path)
+            https_req.update_data_create_files(names.request_options_file_path, req_params_dict)
 
         elif(command == command_load_data_to_spiffs):
             command_binary = 'load pc data to spiffs'.encode()
@@ -390,7 +409,7 @@ def send_response_to_board(serial_port, message_about_sending):
         # test sleep
         time.sleep(1)
 
-        print('send context: %s'%(message_about_sending))
+        print('send event: %s'%(message_about_sending))
 
         response_encoded = 'NEXT_ACTION_BOARD'.encode()
         serial_port.write(response_encoded)
@@ -415,7 +434,7 @@ def wait_response_from_board(serial_port, waiting_event):
     if(serial_port.is_open):
         # print('Wait response from board . . .')
         # print(waiting_event)
-        print('wait context: %s'%(waiting_event))
+        print('wait event: %s'%(waiting_event))
 
         response = ''
         while(response != 'NEXT_ACTION\n'):

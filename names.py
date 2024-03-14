@@ -21,7 +21,8 @@ command_temp_postfix     = '_command_temp'
 response_board_postfix   = '_board_response' 
 command_board_postfix    = '_board_command'
 
-request_options_file_name_txt  = 'requests_input_options.txt'
+request_options_file_name_txt        = 'requests_input_options.txt'
+https_requests_params_file_name_txt  = 'requests_params.txt'
 
 satellites_dir_local_path = './%s'%(satellites_dir_name)
 
@@ -30,6 +31,10 @@ satellites_dir_path = os.path.abspath(satellites_dir_local_path)
 request_options_file_path = '%s/%s'%(
     satellites_dir_path,
     request_options_file_name_txt
+)
+https_requests_params_file_path = '%s/%s'%(
+    satellites_dir_path,
+    https_requests_params_file_name_txt
 )
 responses_dir_path = '%s/%s'%(
     satellites_dir_path,
@@ -64,6 +69,13 @@ if not os.path.exists(request_options_file_path):
         file.write('cstp-1.1=57202\n')
         file.write('cstp-1.2=57186\n')
         file.write('fees_sat=48082\n')
+if not os.path.exists(https_requests_params_file_path):
+    with open(https_requests_params_file_path, 'w') as file:
+        file.write('observer_lat=51.671667\n')
+        file.write('observer_lng=39.210556\n')
+        file.write('observer_alt=99\n')
+        file.write('days=10\n')
+        file.write('min_elevation=40\n')
 
 def update_names(request_options_file_name_new):
     if(request_options_file_name_new == ''):

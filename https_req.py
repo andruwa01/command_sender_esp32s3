@@ -1,14 +1,12 @@
 import requests
 import json
-import api_key as ak
 import os
 from time import strftime, localtime
+
 import text_handler
 import names
-# import names
 
-
-def update_data_create_files(request_options_file):
+def update_data_create_files(request_options_file, req_params_dict):
     if os.stat(request_options_file).st_size == 0:
         print('ОШИБКА! Нет данных о спутниках для совершения запросов на сервер')
     else:
@@ -27,7 +25,7 @@ def update_data_create_files(request_options_file):
 
                     sat_id_list.append(sat_id)
 
-        print(sat_id_list)
+        # print(sat_id_list)
         
 
         # TODO удалюятся изначальные значения файлов, изменить это
@@ -74,12 +72,12 @@ def update_data_create_files(request_options_file):
         #     os.mkdir(responses_dir_path)
 
         # TODO add this options to file so user could install it with his desires
-        observer_lat = 51.671667
-        observer_lng = 39.210556
-        observer_alt = 99
-        days = 10
-        min_elevation = 40
-        api_key = ak.api_key
+        # observer_lat = 51.671667
+        # observer_lng = 39.210556
+        # observer_alt = 99
+        # days = 10
+        # min_elevation = 40
+        # api_key = ak.api_key
 
         # sat_id = 46494 
 
@@ -93,12 +91,12 @@ def update_data_create_files(request_options_file):
 
             url_get_req = "https://api.n2yo.com/rest/v1/satellite/radiopasses/%i/%f/%f/%f/%i/%i/&apiKey=%s"%(
                 int(sat_id),
-                observer_lat,
-                observer_lng,
-                observer_alt,
-                days,
-                min_elevation,
-                api_key
+                req_params_dict['observer_lat'],
+                req_params_dict['observer_lng'],
+                req_params_dict['observer_alt'],
+                req_params_dict['days'],
+                req_params_dict['min_elevation'],
+                req_params_dict['api_key']
             )
 
             # print(url_get_req)
