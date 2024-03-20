@@ -1,0 +1,3 @@
+import udp_command_handler
+
+udp_command_handler.init_command_handler()

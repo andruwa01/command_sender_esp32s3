@@ -3,7 +3,8 @@ import json
 import os
 from time import strftime, localtime
 
-import text_handler
+# import text_handler
+import udp_text_handler
 import names
 
 def update_data_create_files(request_options_file, req_params_dict):
@@ -261,4 +262,4 @@ def update_data_create_files(request_options_file, req_params_dict):
             # remove external elements from buffer
             filtered_buffer = list(filter(lambda element: element != '\n', response_buffer)) 
             # send filtered buffer to function to create files 
-            text_handler.create_files_by_response_list(filtered_buffer)
+            udp_text_handler.create_files_by_response_list(filtered_buffer)
