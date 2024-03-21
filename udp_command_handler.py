@@ -85,7 +85,8 @@ def init_command_handler():
         elif(command == command_test):
             command_binary = 'commandx'.encode()
             # send test command
-            udp_handler.board_socket.sendto(command_binary, udp_handler.board_socket_pair)
+            sent_bytes = udp_handler.board_socket.sendto(command_binary, udp_handler.board_socket_pair)
+            print('command %s sent, size: %i bytes'%(command_binary, sent_bytes))
 
             wait_response_from_board(event_board_get_command)
 
@@ -117,34 +118,25 @@ def init_command_handler():
             ))
 
         elif(command == command_get_spiffs_data):
-            command_binary = 'send spiffs data to pc'.encode()
-            number_of_bytes = serial_port.write(command_binary)
-            print('command %s sent, size: %i bytes'%(command_binary, number_of_bytes))
+            command_binary = 'command0'.encode()
+            # number_of_bytes = serial_port.write(command_binary)
+            # send test command
+            sent_bytes = udp_handler.board_socket.sendto(command_binary, udp_handler.board_socket_pair)
+            print('command %s sent, size: %i bytes'%(command_binary, sent_bytes))
+            wait_response_from_board(event_board_get_command)
 
-            wait_response_from_board(serial_port, event_board_get_command)
+            send_file_over_udp(names.request_options_file_path)
+            wait_response_from_board('waiting signal from board that it finished managing file')
 
-            send_file_over_uart(names.request_options_file_path, serial_port)
+            # # get list of responses from board
+            # responses_list = udp_text_handler.get_decoded_list_of_satellites_data(serial_port)
 
-            # wait signal from board that it read input_options.txt file
-            wait_response_from_board(serial_port, 'waiting signal from board that it read %s.txt file'%(
-                names.request_options_file_name_txt
-            ))
+            # # parse list of responses from board to corresponding files
+            # udp_text_handler.parse_list_create_files(responses_list)
 
-            serial_port.write('END FILES TRANSMISSION'.encode())
-            print('END FILE TRANSMISSION')
+            # send_response_to_board(serial_port, 'we finished handling file data (data files)')
 
-            # wait response from board that it got finished managing file
-            wait_response_from_board(serial_port, 'waiting signal from board that it finished managing file')
-
-            # get list of responses from board
-            responses_list = udp_text_handler.get_decoded_list_of_satellites_data(serial_port)
-
-            # parse list of responses from board to corresponding files
-            udp_text_handler.parse_list_create_files(responses_list)
-
-            send_response_to_board(serial_port, 'we finished handling file data (data files)')
-
-            wait_response_from_board(serial_port, event_board_finish_action)
+            wait_response_from_board(event_board_finish_action)
 
         elif(command == command_clear_all_spiffs):
             command_binary = 'clean all'.encode()
@@ -360,7 +352,7 @@ def init_command_handler():
             print("НЕВЕРНАЯ КОМАНДА!")
             print()
 
-def send_file_over_uart(file_path, serial_port):
+def send_file_over_udp(file_path):
     
     # TODO check if file is empty
     # TODO handle case when symbol of last string in options file is not ''
@@ -369,42 +361,24 @@ def send_file_over_uart(file_path, serial_port):
     data_from_file = []
     with open(file_path, 'r') as file:
         # TEST костыль
-        for line in file:
-            if not line in ['\n', '\r\n']:
-                if not line.endswith('\n'):
-                    line += '\n'
-                data_from_file.append(line)
+        for data_line in file:
+            if not data_line in ['\n', '\r\n']:
+                if not data_line.endswith('\n'):
+                    data_line += '\n'
+                data_from_file.append(data_line)
                 
-        # data_from_file = command_file.readlines()
+    print(data_from_file)
 
-    # clean input buffer 
-    serial_port.reset_input_buffer()
+    data_from_file_binary = ''
+    data_from_file_binary += 'START_FILE\n'
+    for data_line in data_from_file:
+        data_from_file_binary += data_line
+    data_from_file_binary += 'END_FILE\n'
 
-    data_from_file_binary = []
+    print(data_from_file_binary)
 
-    for item in data_from_file:
-
-        data_from_file_binary.append(item.encode())
-
-    # sended bytes counter
-    data_bytes = 0
-
-    # send content from one file to uart tx
-    start_bytes = serial_port.write('START_FILE\n'.encode())
-    data_bytes += start_bytes
-
-    for data_element in data_from_file_binary:
-        data_bytes_element = serial_port.write(data_element)
-        data_bytes += data_bytes_element
-
-    end_bytes = serial_port.write('END_FILE\n'.encode())
-    data_bytes += end_bytes
-
-    # test print
-    print("data: %s sent, size: %i bytes"%(data_from_file_binary, data_bytes))
-
-   # clear data form buffer (to not mix data)
-    serial_port.reset_output_buffer()
+    sent_bytes = udp_handler.board_socket.sendto(data_from_file_binary.encode(), udp_handler.board_socket_pair)
+    print('message: %s sent, size: %i bytes'%(data_from_file_binary, sent_bytes))
 
 def send_response_to_board(message_about_sending):
     print('sending event: %s'%(message_about_sending))
@@ -412,7 +386,7 @@ def send_response_to_board(message_about_sending):
     response = 'response1'
     response_encoded = response.encode()
     sent_bytes = udp_handler.board_socket.sendto(response_encoded, udp_handler.board_socket_pair)
-    print('message %s sent, size %i bytes'%(response, sent_bytes))
+    print('message sent, size %i bytes'%(response, sent_bytes))
 
     # if(serial_port.is_open):
     #     # test sleep
