@@ -83,11 +83,7 @@ def init_command_handler():
             print(text_border_bottom)
         
         elif(command == command_test):
-            command_binary = 'commandx'.encode()
-            # send test command
-            sent_bytes = udp_handler.board_socket.sendto(command_binary, udp_handler.board_socket_pair)
-            print('command %s sent, size: %i bytes'%(command_binary, sent_bytes))
-
+            send_command_to_board('commandx')
             wait_response_from_board(event_board_get_command)
 
             send_response_to_board('test responding 1')
@@ -118,24 +114,23 @@ def init_command_handler():
             ))
 
         elif(command == command_get_spiffs_data):
-            command_binary = 'command0'.encode()
-            # number_of_bytes = serial_port.write(command_binary)
-            # send test command
-            sent_bytes = udp_handler.board_socket.sendto(command_binary, udp_handler.board_socket_pair)
-            print('command %s sent, size: %i bytes'%(command_binary, sent_bytes))
+            send_command_to_board('command0')
             wait_response_from_board(event_board_get_command)
 
             send_file_over_udp(names.request_options_file_path)
             wait_response_from_board('waiting signal from board that it finished managing file')
 
-            # # get list of responses from board
-            # responses_list = udp_text_handler.get_decoded_list_of_satellites_data(serial_port)
+            # spiffs_max_files = 15
+            # spiffs_max_file_size = 5512
 
-            # # parse list of responses from board to corresponding files
-            # udp_text_handler.parse_list_create_files(responses_list)
+            # # get string with responses data from board
+            # print('Waiting responses from port %i'(udp_handler.PC_PORT))
+            # data_files_string = udp_handler.pc_socket.recvfrom(spiffs_max_files * spiffs_max_file_size)
 
-            # send_response_to_board(serial_port, 'we finished handling file data (data files)')
+            # # parse string of responses from board to corresponding files
+            # udp_text_handler.parse_data_files_string_create_files(data_files_string)
 
+            # send_response_to_board('we finished handling file data (data files)')
             wait_response_from_board(event_board_finish_action)
 
         elif(command == command_clear_all_spiffs):
@@ -214,23 +209,22 @@ def init_command_handler():
             total_value = int(spiffs_info_splitted_list[0].split('=')[1])
             used_value  = int(spiffs_info_splitted_list[1].split('=')[1])
 
-            free_space_value  =  total_value - used_value
+            free_space_size  =  total_value - used_value
 
             for file in os.listdir(names.commands_dir_path):
                 file_path = names.commands_dir_path + '/' + file
                 files_sized_in_pc += os.path.getsize(file_path)
-                # print(os.path.getsize(file_path))
             
             for file in os.listdir(names.responses_dir_path):
                 file_path = names.responses_dir_path + '/' + file
                 files_sized_in_pc += os.path.getsize(file_path)
             
-            if free_space_value < files_sized_in_pc:
+            if free_space_size < files_sized_in_pc:
                 print('ОСТОРОЖНО! %i байт в папках %s и %s не поместятся в свободное пространство из %i байт в spiffs'%(
                     files_sized_in_pc,
                     names.commands_dir_name,
                     names.responses_dir_name,
-                    free_space_value
+                    free_space_size
                 ))
                 return
             else:
@@ -241,7 +235,7 @@ def init_command_handler():
             print('Статистика по spiffs:')
             print('Использовано места (байт): {:>}'.format(str(used_value)))
             print('Всего места в spiffs (байт): {:>}'.format(str(total_value)))
-            print('Осталось свободного места (байт): {:>}'.format(str(free_space_value)))
+            print('Осталось свободного места (байт): {:>}'.format(str(free_space_size)))
 
             print('\nИнформация по каждому файлу в spiffs (размер в байтах):')
 
@@ -281,22 +275,15 @@ def init_command_handler():
             https_req.update_data_create_files(names.request_options_file_path, req_params_dict)
 
         elif(command == command_load_data_to_spiffs):
-            command_binary = 'load pc data to spiffs'.encode()
-
-            # write command to uart buffer
-            number_of_bytes = serial_port.write(command_binary)
-            print('command %s sent, size %i bytes'%(command_binary, number_of_bytes))
-
-            # continue when board get command
-            wait_response_from_board(serial_port, "board get command")
-            
-            # send signal that we are ready to getting free_space info
-            send_response_to_board(serial_port, "ready to get info about free space in spiffs")
+            send_command_to_board('command1')
+            wait_response_from_board("board get command")
+            send_response_to_board("ready to get info about free space in spiffs")
             # read size that we already have (and check if there is enough space in spiffs for data)
-            free_space_line = serial_port.readline()
-            free_space_value = int(free_space_line.decode().split('=')[1].strip('\n'))
+            # free_space_line = serial_port.readline()
+            free_space_string, addr = udp_handler.pc_socket.recvfrom(128)
+            print('\nGot info about free space from %s\n', addr)
 
-            # wait_response_from_board(serial_port)
+            free_space_size = int(free_space_string.decode().split('=')[1].strip('\n'))
 
             # compare sizes
             pc_files_size = 0
@@ -304,45 +291,32 @@ def init_command_handler():
                 file_path = names.responses_dir_path + '/' + file_pass
                 pc_files_size += os.path.getsize(file_path)
 
-            for user_param in os.listdir(names.commands_dir_path):
-                file_path = names.commands_dir_path + '/' + user_param
+            for command_file_txt in os.listdir(names.commands_dir_path):
+                file_path = names.commands_dir_path + '/' + command_file_txt
                 pc_files_size += os.path.getsize(file_path)
 
-            if free_space_value < pc_files_size:
+            if free_space_size < pc_files_size:
                 print('ОШИБКА! Недостаточно места в spiffs для записи, освободите его перед записью файлов')
-                wait_response_from_board(serial_port, 'wait until board ends performs command')
+                wait_response_from_board('wait until board ends performs command')
                 return
 
-            # test print
-            # print('free space value: %i'%free_space_value)
+            send_response_to_board('python finished working with info data')
+            wait_response_from_board('python can start uploading files with data to board')
 
-            # send signal to board that we finished working with info data
-            send_response_to_board(serial_port, 'python finished working with info data')
-
-            # wait signal that python can load files with data 
-            wait_response_from_board(serial_port, 'python can loda files with data')
+            time.sleep(5)
 
             for file_pass in os.listdir(names.responses_dir_path):
                 file_path = names.responses_dir_path + '/' + file_pass
-
-                # test print
-                print(file_path)
-
-                send_file_over_uart(file_path, serial_port)
-                wait_response_from_board(serial_port, 'new file ready')
+                send_file_over_udp(file_path)
+                wait_response_from_board('new file ready')
             
-            for user_param in os.listdir(names.commands_dir_path):
-                file_path = names.commands_dir_path + '/' + user_param
-                send_file_over_uart(file_path, serial_port)
-                wait_response_from_board(serial_port, 'new file ready')
+            for command_file_txt in os.listdir(names.commands_dir_path):
+                file_path = names.commands_dir_path + '/' + command_file_txt
+                send_file_over_udp(file_path)
+                wait_response_from_board('new file ready')
 
-            serial_port.write('END FILES TRANSMISSION'.encode())
-
-            # wait singnal that board finished working with files
-            wait_response_from_board(serial_port, 'board finished working with files')
-
-            # wait signal that we can read another command
-            wait_response_from_board(serial_port, event_board_finish_action)
+            wait_response_from_board('board finished working with files')
+            wait_response_from_board(event_board_finish_action)
 
         elif(command == command_stop):
             print('ПРОГРАММА ОСТАНОВЛЕНА . . .', end='\n\n')
@@ -353,6 +327,7 @@ def init_command_handler():
             print()
 
 def send_file_over_udp(file_path):
+    send_command_to_board('ready to get file')
     
     # TODO check if file is empty
     # TODO handle case when symbol of last string in options file is not ''
@@ -366,27 +341,33 @@ def send_file_over_udp(file_path):
                 if not data_line.endswith('\n'):
                     data_line += '\n'
                 data_from_file.append(data_line)
-                
-    print(data_from_file)
 
-    data_from_file_binary = ''
-    data_from_file_binary += 'START_FILE\n'
+    # print('\n====\n%s\n====\n'%(data_from_file))
+
+    sent_bytes = 0
+    file_data_string = ''
+    udp_handler.board_socket.sendto('START_FILE'.encode(), udp_handler.board_socket_pair)
     for data_line in data_from_file:
-        data_from_file_binary += data_line
-    data_from_file_binary += 'END_FILE\n'
+        file_data_string += data_line
+        wait_response_from_board('board ready to read data line')
+        sent_bytes_part = udp_handler.board_socket.sendto(file_data_string.encode(), udp_handler.board_socket_pair)
+        sent_bytes += sent_bytes_part
+    udp_handler.board_socket.sendto('END_FILE'.encode(), udp_handler.board_socket_pair)
 
-    print(data_from_file_binary)
+    print("data from file:\n====\n%s\n====\n"%(file_data_string))
 
-    sent_bytes = udp_handler.board_socket.sendto(data_from_file_binary.encode(), udp_handler.board_socket_pair)
-    print('message: %s sent, size: %i bytes'%(data_from_file_binary, sent_bytes))
+    # sent_bytes = udp_handler.board_socket.sendto(file_data_string.encode(), udp_handler.board_socket_pair)
+
+    # sent_bytes = udp_handler.board_socket.sendto("some kind of random data".encode(), udp_handler.board_socket_pair)
+    print('message sent, size: %i bytes'%(sent_bytes))
 
 def send_response_to_board(message_about_sending):
-    print('sending event: %s'%(message_about_sending))
+    print('send event: %s'%(message_about_sending))
 
     response = 'response1'
-    response_encoded = response.encode()
-    sent_bytes = udp_handler.board_socket.sendto(response_encoded, udp_handler.board_socket_pair)
-    print('message sent, size %i bytes'%(response, sent_bytes))
+    response_binary = response.encode()
+    sent_bytes = udp_handler.board_socket.sendto(response_binary, udp_handler.board_socket_pair)
+    print('message %s sent, size %i bytes'%(response, sent_bytes))
 
     # if(serial_port.is_open):
     #     # test sleep
@@ -409,38 +390,19 @@ def send_response_to_board(message_about_sending):
 
 def wait_response_from_board(waiting_event):
     print('wait event: %s'%(waiting_event))
-
-    # TODO check if it could be deleted
-    # give a few seconds to read info in uart (to read it)
-    # time.sleep(1)
-
     response = b''
     while(response.decode() != 'response0'):
         print('waiting data from port %i'%(udp_handler.BOARD_PORT))
         response, addr = udp_handler.pc_socket.recvfrom(16)
-        print('received message: %s from %s\n'%(response.decode(), addr))
+        print('received response: %s from %s\n'%(response.decode(), addr))
 
         time.sleep(1)
 
-    # if(serial_port.is_open):
-    #     # print('Wait response from board . . .')
-    #     # print(waiting_event)
-    #     print('wait event: %s'%(waiting_event))
+def send_command_to_board(command_text):
+    if len(command_text) != len('commandx'):
+        print('ERROR! Wrong format of command')
+        return
 
-    #     response = ''
-    #     while(response != 'NEXT_ACTION\n'):
-    #         response = serial_port.readline().decode()
-    #         print('wrong line in UART. . .')
-        
-    #     # print('Got response!')
-
-    #     # erase response from input buffer
-    #     serial_port.reset_input_buffer()
-    #     # erase output buffer commands
-    #     serial_port.reset_output_buffer()
-
-    #     # test sleep
-    #     time.sleep(1)
-    # else:
-    #     print("ERROR! Port is not opened")
-    #     return
+    command_binary = command_text.encode()
+    sent_bytes = udp_handler.board_socket.sendto(command_binary, udp_handler.board_socket_pair)
+    print('\ncommand %s sent, size: %i bytes\n'%(command_binary, sent_bytes))
