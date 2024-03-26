@@ -18,7 +18,7 @@ pc_socket.bind(pc_socket_pair)
 print('pc socket binded to %s port'%(PC_PORT))
 
 board_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-print('client socket created!')
+print('board socket created!')
 # board_socket.bind(board_socket_pair)
 # print('board socket binded to %s port'%(BOARD_PORT))
 

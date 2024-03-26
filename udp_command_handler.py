@@ -314,7 +314,7 @@ def init_command_handler():
                 file_path = names.commands_dir_path + '/' + command_file_txt
                 send_file_over_udp(file_path)
                 wait_response_from_board('new file ready')
-
+            
             wait_response_from_board('board finished working with files')
             wait_response_from_board(event_board_finish_action)
 
@@ -327,39 +327,58 @@ def init_command_handler():
             print()
 
 def send_file_over_udp(file_path):
-    send_command_to_board('ready to get file')
     
     # TODO check if file is empty
     # TODO handle case when symbol of last string in options file is not ''
 
-    # send data for one satellite
-    data_from_file = []
+    file_data_string = ''
+    file_data_list = []
     with open(file_path, 'r') as file:
-        # TEST костыль
         for data_line in file:
             if not data_line in ['\n', '\r\n']:
                 if not data_line.endswith('\n'):
                     data_line += '\n'
-                data_from_file.append(data_line)
+                file_data_list.append(data_line)
+                file_data_string += data_line
 
-    # print('\n====\n%s\n====\n'%(data_from_file))
+    if not file_data_list or not file_data_string:
+        print('data from %s is empty, transmission impossible')
+        return
+    
+    print('(test print) data from file:\n====\n%s\n====\n'%(file_data_string))
+    send_response_to_board('ready to send file')
 
-    sent_bytes = 0
-    file_data_string = ''
-    udp_handler.board_socket.sendto('START_FILE'.encode(), udp_handler.board_socket_pair)
-    for data_line in data_from_file:
-        file_data_string += data_line
-        wait_response_from_board('board ready to read data line')
-        sent_bytes_part = udp_handler.board_socket.sendto(file_data_string.encode(), udp_handler.board_socket_pair)
-        sent_bytes += sent_bytes_part
+    time.sleep(5)
+
+    sent_package_size = 0
+
+    sent_bytes_test = udp_handler.board_socket.sendto('START_FILE'.encode(), udp_handler.board_socket_pair)
+    print('START_FILE sent, size %i bytes'%(sent_bytes_test))
+
+    wait_response_from_board('board start getting file chunks')
+
+    file_data_length = len(file_data_string)
+    start_chunk_index = 0 
+    while(file_data_length > 0):
+        end_chunk_index = start_chunk_index + 512
+        if end_chunk_index > len(file_data_string):
+            end_chunk_index = len(file_data_string)
+        data_chunk_string = file_data_string[start_chunk_index:end_chunk_index]
+        start_chunk_index = end_chunk_index
+
+        sent_bytes_by_chunk = udp_handler.board_socket.sendto(data_chunk_string.encode(), udp_handler.board_socket_pair)
+        file_data_length -= sent_bytes_by_chunk
+        sent_package_size += sent_bytes_by_chunk
+
+        time.sleep(1)
+
     udp_handler.board_socket.sendto('END_FILE'.encode(), udp_handler.board_socket_pair)
 
-    print("data from file:\n====\n%s\n====\n"%(file_data_string))
 
     # sent_bytes = udp_handler.board_socket.sendto(file_data_string.encode(), udp_handler.board_socket_pair)
 
     # sent_bytes = udp_handler.board_socket.sendto("some kind of random data".encode(), udp_handler.board_socket_pair)
-    print('message sent, size: %i bytes'%(sent_bytes))
+    print('message sent, size: %i bytes'%(sent_package_size))
 
 def send_response_to_board(message_about_sending):
     print('send event: %s'%(message_about_sending))
