@@ -281,7 +281,8 @@ def init_command_handler():
             # read size that we already have (and check if there is enough space in spiffs for data)
             # free_space_line = serial_port.readline()
             free_space_string, addr = udp_handler.pc_socket.recvfrom(128)
-            print('\nGot info about free space from %s\n', addr)
+            print('\ngot info about free space from\n')
+            print(addr)
 
             free_space_size = int(free_space_string.decode().split('=')[1].strip('\n'))
 
@@ -303,18 +304,24 @@ def init_command_handler():
             send_response_to_board('python finished working with info data')
             wait_response_from_board('python can start uploading files with data to board')
 
-            time.sleep(5)
-
             for file_pass in os.listdir(names.responses_dir_path):
+                udp_handler.board_socket.sendto('CONTINUE'.encode(), udp_handler.board_socket_pair)
+                # TODO delete if comment
+                # wait_response_from_board('can load next file')
                 file_path = names.responses_dir_path + '/' + file_pass
                 send_file_over_udp(file_path)
                 wait_response_from_board('new file ready')
             
             for command_file_txt in os.listdir(names.commands_dir_path):
+                udp_handler.board_socket.sendto('CONTINUE'.encode(), udp_handler.board_socket_pair)
+                # TODO delete if comment
+                # wait_response_from_board('can load next file')
                 file_path = names.commands_dir_path + '/' + command_file_txt
                 send_file_over_udp(file_path)
                 wait_response_from_board('new file ready')
             
+            udp_handler.board_socket.sendto('BREAK'.encode(), udp_handler.board_socket_pair)
+
             wait_response_from_board('board finished working with files')
             wait_response_from_board(event_board_finish_action)
 
@@ -327,9 +334,6 @@ def init_command_handler():
             print()
 
 def send_file_over_udp(file_path):
-    
-    # TODO check if file is empty
-    # TODO handle case when symbol of last string in options file is not ''
 
     file_data_string = ''
     file_data_list = []
@@ -347,8 +351,6 @@ def send_file_over_udp(file_path):
     
     print('(test print) data from file:\n====\n%s\n====\n'%(file_data_string))
     send_response_to_board('ready to send file')
-
-    time.sleep(5)
 
     sent_package_size = 0
 
@@ -370,14 +372,11 @@ def send_file_over_udp(file_path):
         file_data_length -= sent_bytes_by_chunk
         sent_package_size += sent_bytes_by_chunk
 
+        wait_response_from_board('wait info about reading new chunk')
         time.sleep(1)
 
     udp_handler.board_socket.sendto('END_FILE'.encode(), udp_handler.board_socket_pair)
 
-
-    # sent_bytes = udp_handler.board_socket.sendto(file_data_string.encode(), udp_handler.board_socket_pair)
-
-    # sent_bytes = udp_handler.board_socket.sendto("some kind of random data".encode(), udp_handler.board_socket_pair)
     print('message sent, size: %i bytes'%(sent_package_size))
 
 def send_response_to_board(message_about_sending):
@@ -388,25 +387,6 @@ def send_response_to_board(message_about_sending):
     sent_bytes = udp_handler.board_socket.sendto(response_binary, udp_handler.board_socket_pair)
     print('message %s sent, size %i bytes'%(response, sent_bytes))
 
-    # if(serial_port.is_open):
-    #     # test sleep
-    #     time.sleep(1)
-
-    #     print('send event: %s'%(message_about_sending))
-
-    #     response_encoded = 'NEXT_ACTION_BOARD'.encode()
-    #     serial_port.write(response_encoded)
-
-    #     # give a few seconds before next line of code in python script 
-    #     time.sleep(1)
-
-    #     serial_port.reset_output_buffer()
-    #     serial_port.reset_input_buffer()
-        
-    # else:
-    #     print("ERROR! Port is not opened")
-    #     return
-
 def wait_response_from_board(waiting_event):
     print('wait event: %s'%(waiting_event))
     response = b''
@@ -414,8 +394,6 @@ def wait_response_from_board(waiting_event):
         print('waiting data from port %i'%(udp_handler.BOARD_PORT))
         response, addr = udp_handler.pc_socket.recvfrom(16)
         print('received response: %s from %s\n'%(response.decode(), addr))
-
-        time.sleep(1)
 
 def send_command_to_board(command_text):
     if len(command_text) != len('commandx'):

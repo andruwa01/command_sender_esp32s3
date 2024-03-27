@@ -2,3 +2,4 @@ test.py
 api_key.py
 /satellites_info
 /test_scripts
+__pycache__/
