@@ -306,16 +306,12 @@ def init_command_handler():
 
             for file_pass in os.listdir(names.responses_dir_path):
                 udp_handler.board_socket.sendto('CONTINUE'.encode(), udp_handler.board_socket_pair)
-                # TODO delete if comment
-                # wait_response_from_board('can load next file')
                 file_path = names.responses_dir_path + '/' + file_pass
                 send_file_over_udp(file_path)
                 wait_response_from_board('new file ready')
             
             for command_file_txt in os.listdir(names.commands_dir_path):
                 udp_handler.board_socket.sendto('CONTINUE'.encode(), udp_handler.board_socket_pair)
-                # TODO delete if comment
-                # wait_response_from_board('can load next file')
                 file_path = names.commands_dir_path + '/' + command_file_txt
                 send_file_over_udp(file_path)
                 wait_response_from_board('new file ready')
@@ -352,13 +348,12 @@ def send_file_over_udp(file_path):
     print('(test print) data from file:\n====\n%s\n====\n'%(file_data_string))
     send_response_to_board('ready to send file')
 
-    sent_package_size = 0
-
     sent_bytes_test = udp_handler.board_socket.sendto('START_FILE'.encode(), udp_handler.board_socket_pair)
     print('START_FILE sent, size %i bytes'%(sent_bytes_test))
 
     wait_response_from_board('board start getting file chunks')
 
+    sent_package_size = 0
     file_data_length = len(file_data_string)
     start_chunk_index = 0 
     while(file_data_length > 0):
@@ -373,7 +368,6 @@ def send_file_over_udp(file_path):
         sent_package_size += sent_bytes_by_chunk
 
         wait_response_from_board('wait info about reading new chunk')
-        time.sleep(1)
 
     udp_handler.board_socket.sendto('END_FILE'.encode(), udp_handler.board_socket_pair)
 
