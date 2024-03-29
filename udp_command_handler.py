@@ -122,7 +122,7 @@ def init_command_handler():
 
             data_files_string = ''
             while(True):
-                print('Waiting loop signal')
+                print('waiting loop signal')
                 loop_signal_bytes, addr = udp_handler.pc_socket.recvfrom(16)
                 loop_signal = loop_signal_bytes.decode()
                 if(loop_signal == 'BREAK'):
@@ -133,7 +133,7 @@ def init_command_handler():
                     print('loop singal: %s'%(loop_signal))
                 else:
                     print("ERROR! wrong signal to file handling loop")
-                    print('(test loop signal): %s'%(loop_signal))
+                    print('(error loop signal): %s'%(loop_signal))
                     break
 
                 file_buffer = ''
@@ -144,6 +144,8 @@ def init_command_handler():
                 file_buffer += 'END_FILE\n'
                 data_files_string += file_buffer
 
+                # TODO Бывает ошибка, когда send_response_to_board почему-то не попадает на файл
+                time.sleep(1)
                 send_response_to_board('pc can read another file')
 
 
