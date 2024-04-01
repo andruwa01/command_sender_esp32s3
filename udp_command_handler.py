@@ -121,23 +121,24 @@ def init_command_handler():
             wait_response_from_board('waiting signal from board that it finished managing options file')
 
             data_files_string = ''
+
             while(True):
                 print('waiting loop signal')
                 loop_signal_bytes, addr = udp_handler.pc_socket.recvfrom(16)
                 loop_signal = loop_signal_bytes.decode()
                 if(loop_signal == 'BREAK'):
                     print('loop signal: %s'%(loop_signal))
-                    send_response_to_board('finish working with files')
                     break
                 elif(loop_signal == 'CONTINUE'):
                     print('loop singal: %s'%(loop_signal))
+                    send_response_to_board('pc get continue signal')
                 else:
                     print("ERROR! wrong signal to file handling loop")
                     print('(error loop signal): %s'%(loop_signal))
-                    break
+                    continue
 
-                file_buffer = ''
-                file_buffer = receive_file_over_udp(file_buffer)
+
+                file_buffer = receive_file_over_udp()
                 print('data from pc:\n====\n%s\n====\n'%(file_buffer))
 
                 # TODO две строчки ниже - костыль, чтобы состыковать с тем, что имеется. Можно передеделать.
@@ -148,6 +149,7 @@ def init_command_handler():
                 time.sleep(1)
                 send_response_to_board('pc can read another file')
 
+            send_response_to_board('finish working with files')
 
             # spiffs_max_files = 15
             # spiffs_max_file_size = 5512
@@ -189,7 +191,7 @@ def init_command_handler():
 
             with open(names.request_options_file_path, 'r') as file_pass:
                 for line in file_pass:
-                    if not line in ['\n', '\r\n']:
+                    if not line in ['\n', '\r\n'] and not line.startswith('//'):
                         sat_id = line.split('=')[1]
 
                         if not sat_id.endswith('\n'):
@@ -288,7 +290,7 @@ def init_command_handler():
 
             with open(names.https_requests_params_file_path, 'r') as params_file:
                 for line in params_file:
-                    if not line in ['\n', '\r\n']:
+                    if not line in ['\n', '\r\n'] and not line.startswith('//'):
                         if not line.endswith('\n'):
                             line += '\n'
                         parsed_line_list = line.strip('\n').split('=')
@@ -358,8 +360,10 @@ def init_command_handler():
             print("НЕВЕРНАЯ КОМАНДА!")
             print()
 
-def receive_file_over_udp(empty_data_buffer):
+def receive_file_over_udp():
     wait_response_from_board('wait signal from board that it ready to send file')
+
+    empty_data_buffer = ''
 
     start_file_buffer_binary = b''
     while(start_file_buffer_binary.decode() != 'START_FILE'):
@@ -376,7 +380,7 @@ def receive_file_over_udp(empty_data_buffer):
             print('data chunk finished')
             break
 
-        print('recevied %i bytes from %s'%(len(data_chunk), addr))
+        print('received {0} bytes from {1}:{2}'.format(len(data_chunk), addr[0], addr[1]))
         empty_data_buffer += data_chunk
         used_bytes += len(data_chunk)
 
@@ -391,7 +395,7 @@ def send_file_over_udp(file_path):
     file_data_list = []
     with open(file_path, 'r') as file:
         for data_line in file:
-            if not data_line in ['\n', '\r\n']:
+            if not data_line in ['\n', '\r\n'] and not data_line.startswith('//'):
                 if not data_line.endswith('\n'):
                     data_line += '\n'
                 file_data_list.append(data_line)
@@ -429,8 +433,8 @@ def send_file_over_udp(file_path):
 
     print('message sent, size: %i bytes'%(sent_package_size))
 
-def send_response_to_board(message_about_sending):
-    print('send event: %s'%(message_about_sending))
+def send_response_to_board(send_event):
+    print('send event: %s'%(send_event))
 
     response = 'response1'
     response_binary = response.encode()
@@ -443,7 +447,7 @@ def wait_response_from_board(waiting_event):
     while(response.decode() != 'response0'):
         print('waiting data from port %i'%(udp_handler.BOARD_PORT))
         response, addr = udp_handler.pc_socket.recvfrom(16)
-        print('received response: %s from %s\n'%(response.decode(), addr))
+        print('received response: %s from %s'%(response.decode(), addr))
 
 def send_command_to_board(command_text):
     if len(command_text) != len('commandx'):

@@ -64,6 +64,8 @@ if not os.path.isdir(commands_dir_path):
     os.mkdir(commands_dir_path)
 if not os.path.exists(request_options_file_path):
     with open(request_options_file_path, 'w') as file:
+        file.write('// Если использовать символ \'//\' в начале строки, то эти строчки будут игнорироваться при использовании файла настроек\n')
+        file.write('// Набор спутников по-умолчанию:\n')
         file.write('norbi=46494\n')
         file.write('2023-091t=57183\n')
         file.write('cstp-1.1=57202\n')

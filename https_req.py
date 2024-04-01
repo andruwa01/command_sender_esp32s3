@@ -18,7 +18,7 @@ def update_data_create_files(request_options_file, req_params_dict):
 
         with open(request_options_file, 'r') as file_opt:
             for line in file_opt:
-                if not line in ['\n', '\r\n']:
+                if not line in ['\n', '\r\n'] and not line.startswith('//'):
                     sat_id = line.split('=')[1]
 
                     if sat_id.endswith('\n'):
