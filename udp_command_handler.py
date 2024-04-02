@@ -115,9 +115,11 @@ def init_command_handler():
 
         elif(command == command_get_spiffs_data):
             send_command_to_board('command0')
+
             wait_response_from_board(event_board_get_command)
 
             send_file_over_udp(names.request_options_file_path)
+
             wait_response_from_board('waiting signal from board that it finished managing options file')
 
             data_files_string = ''
@@ -131,7 +133,7 @@ def init_command_handler():
                     break
                 elif(loop_signal == 'CONTINUE'):
                     print('loop singal: %s'%(loop_signal))
-                    send_response_to_board('pc get continue signal')
+                    # send_response_to_board('pc get continue signal')
                 else:
                     print("ERROR! wrong signal to file handling loop")
                     print('(error loop signal): %s'%(loop_signal))
@@ -146,8 +148,8 @@ def init_command_handler():
                 data_files_string += file_buffer
 
                 # TODO Бывает ошибка, когда send_response_to_board почему-то не попадает на файл
-                time.sleep(1)
-                send_response_to_board('pc can read another file')
+                # time.sleep(1)
+                send_response_to_board('pc can read next file')
 
             send_response_to_board('finish working with files')
 
@@ -161,7 +163,6 @@ def init_command_handler():
             # parse string of responses from board to corresponding files
             udp_text_handler.parse_data_files_string_create_files(data_files_string)
 
-            # send_response_to_board('we finished handling file data (data files)')
             wait_response_from_board(event_board_finish_action)
 
         elif(command == command_clear_all_spiffs):
@@ -368,24 +369,23 @@ def receive_file_over_udp():
     start_file_buffer_binary = b''
     while(start_file_buffer_binary.decode() != 'START_FILE'):
         start_file_buffer_binary, addr = udp_handler.pc_socket.recvfrom(len('START_FILE'))
-
     print('get START_FILE from %s:%i'%(addr))
-    send_response_to_board('pc get file')
+
+    send_response_to_board('pc can start reading data chunks')
 
     used_bytes = 0
     while(True):
+        send_response_to_board('ready to get new chunk')
+
         data_chunk_byte, addr = udp_handler.pc_socket.recvfrom(1024)
         data_chunk = data_chunk_byte.decode()
         if(data_chunk == 'END_FILE'):
             print('data chunk finished')
             break
-
         print('received {0} bytes from {1}:{2}'.format(len(data_chunk), addr[0], addr[1]))
         empty_data_buffer += data_chunk
         used_bytes += len(data_chunk)
 
-        send_response_to_board('ready to get new chunk')
-    
     print('finish file handle with size %i'%(used_bytes))
     return empty_data_buffer
 
@@ -406,6 +406,7 @@ def send_file_over_udp(file_path):
         return
     
     print('(test print) data from file:\n====\n%s\n====\n'%(file_data_string))
+
     send_response_to_board('ready to send file')
 
     sent_bytes_test = udp_handler.board_socket.sendto('START_FILE'.encode(), udp_handler.board_socket_pair)
@@ -434,6 +435,8 @@ def send_file_over_udp(file_path):
     print('message sent, size: %i bytes'%(sent_package_size))
 
 def send_response_to_board(send_event):
+    time.sleep(10)
+
     print('send event: %s'%(send_event))
 
     response = 'response1'
