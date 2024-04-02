@@ -147,8 +147,8 @@ def init_command_handler():
                 file_buffer += 'END_FILE\n'
                 data_files_string += file_buffer
 
-                # TODO Бывает ошибка, когда send_response_to_board почему-то не попадает на файл
-                # time.sleep(1)
+            #     # TODO Бывает ошибка, когда send_response_to_board почему-то не попадает на файл
+
                 send_response_to_board('pc can read next file')
 
             send_response_to_board('finish working with files')
@@ -375,16 +375,17 @@ def receive_file_over_udp():
 
     used_bytes = 0
     while(True):
-        send_response_to_board('ready to get new chunk')
-
         data_chunk_byte, addr = udp_handler.pc_socket.recvfrom(1024)
         data_chunk = data_chunk_byte.decode()
+        print('received {0} bytes from {1}:{2}'.format(len(data_chunk), addr[0], addr[1]))
         if(data_chunk == 'END_FILE'):
             print('data chunk finished')
             break
-        print('received {0} bytes from {1}:{2}'.format(len(data_chunk), addr[0], addr[1]))
+
         empty_data_buffer += data_chunk
         used_bytes += len(data_chunk)
+
+        send_response_to_board('ready to get new chunk')
 
     print('finish file handle with size %i'%(used_bytes))
     return empty_data_buffer
@@ -435,7 +436,7 @@ def send_file_over_udp(file_path):
     print('message sent, size: %i bytes'%(sent_package_size))
 
 def send_response_to_board(send_event):
-    time.sleep(10)
+    # time.sleep(10)
 
     print('send event: %s'%(send_event))
 
