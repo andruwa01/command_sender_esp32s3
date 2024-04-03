@@ -231,6 +231,7 @@ def init_command_handler():
             # send signal to board that we are ready to read informations about files
             send_response_to_board("ready to read information about files")
 
+            # Реализовать отправку собщений, которое затем можно интегрировать в отправку файлов, но тогад нужно сделать такое и на плате
             print('read info about files')
             udp_handler.pc_socket.recvfrom(512)
             # print(spiffs_files_info)
