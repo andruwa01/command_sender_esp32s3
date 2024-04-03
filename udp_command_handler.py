@@ -14,11 +14,8 @@ from api_key import api_key
 # def init_command_handler(serial_port):
 def init_command_handler():
 
-    text_border_top =    '\n<==============================ВЫВОД=====================================>\n'
-    text_border_bottom = '\n<============================КОНЕЦ ВЫВОДА================================>\n'
-
     event_board_finish_action      = 'python ready to send another command'
-    event_board_get_command        = 'board get command' 
+    event_udp_board_get_command        = 'board get command' 
 
     command_help =                      'help'
     command_change_options_file =       'change options'
@@ -45,7 +42,7 @@ def init_command_handler():
         # command_binary = command.encode()
 
         if(command == command_help):
-            print(text_border_top)
+            print(names.text_border_top)
 
             print('СПИСОК ДОСТУПНЫХ КОМАНД:', end='\n\n')
             print("{:25s} -> тестовая команда (потом убрать)".format(command_test))
@@ -80,11 +77,11 @@ def init_command_handler():
             ))
             print("{:25s} -> выйти из программы".format(command_stop))
 
-            print(text_border_bottom)
+            print(names.text_border_bottom)
         
         elif(command == command_test):
             send_command_to_board('commandx')
-            wait_response_from_board(event_board_get_command)
+            wait_response_from_board(event_udp_board_get_command)
 
             send_response_to_board('test responding 1')
 
@@ -116,7 +113,7 @@ def init_command_handler():
         elif(command == command_get_spiffs_data):
             send_command_to_board('command0')
 
-            wait_response_from_board(event_board_get_command)
+            wait_response_from_board(event_udp_board_get_command)
 
             send_file_over_udp(names.request_options_file_path)
 
@@ -156,15 +153,14 @@ def init_command_handler():
             wait_response_from_board(event_board_finish_action)
 
         elif(command == command_clear_all_spiffs):
-            command_binary = 'clean all'.encode()
-            number_of_bytes = serial_port.write(command_binary)
-            print('command %s sent, size: %i bytes'%(command_binary, number_of_bytes))
-
-            wait_response_from_board(serial_port, 'spiffs files erased')
+            send_command_to_board('command4')
+            wait_response_from_board(event_udp_board_get_command)
+            print('проводится очистика всех файлов в spiffs . . .')
+            wait_response_from_board(event_board_finish_action)
 
         elif(command == command_clear_spiffs):
             send_command_to_board('command3')
-            wait_response_from_board(event_board_get_command)
+            wait_response_from_board(event_udp_board_get_command)
 
             wait_response_from_board('board ready to get list of satellites')
 
@@ -185,7 +181,7 @@ def init_command_handler():
         elif(command == command_get_spiffs_info):
             send_command_to_board('command2')
 
-            wait_response_from_board(event_board_get_command)
+            wait_response_from_board(event_udp_board_get_command)
             send_response_to_board("ready to get info about free space in spiffs")
 
             # get info about spiffs size 
@@ -221,7 +217,7 @@ def init_command_handler():
                 ))
                 return
             else:
-                print(text_border_top)
+                print(names.text_border_top)
                 print('При отправке файлов будет записано %i байт в spiffs, свободное место есть'%(
                     files_sized_in_pc), end='\n\n')
 
@@ -240,7 +236,7 @@ def init_command_handler():
                 print('SPIFFS пуст! Не найдена информация ни по одному из файлов')
 
             # print('\nКонец статистики', end='\n')
-            print(text_border_bottom)
+            print(names.text_border_bottom)
 
             send_response_to_board("send signal that we finished working with files")
 
@@ -269,7 +265,7 @@ def init_command_handler():
 
         elif(command == command_load_data_to_spiffs):
             send_command_to_board('command1')
-            wait_response_from_board(event_board_get_command)
+            wait_response_from_board(event_udp_board_get_command)
             send_response_to_board("ready to get info about free space in spiffs")
             # read size that we already have (and check if there is enough space in spiffs for data)
             

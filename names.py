@@ -1,6 +1,9 @@
 import datetime
 import os
 
+text_border_top =    '\n<==============================ВЫВОД=====================================>\n'
+text_border_bottom = '\n<============================КОНЕЦ ВЫВОДА================================>\n'
+
 # now_time = datetime.datetime.now()
 # formatted_now_time = now_time.strftime('%Y-%m-%d_%H:%M:%S')
 # last_time_updated_postfix = '_updated_%s'%(formatted_now_time)
