@@ -363,14 +363,18 @@ def init_command_handler():
             print()
 
 def receive_file_over_udp():
-    wait_response_from_board('wait signal from board that it ready to send file')
+    file_data = receive_msg_over_udp()
+    return file_data
+
+def receive_msg_over_udp():
+    wait_response_from_board('wait signal from board that it ready to send message')
 
     empty_data_buffer = ''
 
-    start_file_buffer_binary = b''
-    while(start_file_buffer_binary.decode() != 'START_FILE'):
-        start_file_buffer_binary, addr = udp_handler.pc_socket.recvfrom(len('START_FILE'))
-    print('get START_FILE from %s:%i'%(addr))
+    start_msg_buffer_binary = b''
+    while(start_msg_buffer_binary.decode() != 'START_MSG'):
+        start_msg_buffer_binary, addr = udp_handler.pc_socket.recvfrom(len('START_MSG'))
+    print('get START_MSG from %s:%i'%(addr))
 
     send_response_to_board('pc can start reading data chunks')
 
@@ -379,7 +383,7 @@ def receive_file_over_udp():
         data_chunk_byte, addr = udp_handler.pc_socket.recvfrom(1024)
         data_chunk = data_chunk_byte.decode()
         print('received {0} bytes from {1}:{2}'.format(len(data_chunk), addr[0], addr[1]))
-        if(data_chunk == 'END_FILE'):
+        if(data_chunk == 'END_MSG'):
             print('data chunk finished')
             break
 
@@ -388,7 +392,7 @@ def receive_file_over_udp():
 
         send_response_to_board('ready to get new chunk')
 
-    print('finish file handle with size %i'%(used_bytes))
+    print('finish handle message with size %i'%(used_bytes))
     return empty_data_buffer
 
 def send_msg_over_udp(msg_buf_str):
