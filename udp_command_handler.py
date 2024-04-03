@@ -179,7 +179,7 @@ def init_command_handler():
 
             # print(sat_ids_str)
             send_msg_over_udp(sat_ids_str)
-
+            send_response_to_board('pc finish working with files')
             # sended_bytes = 0
 
             # # create list of command_names
