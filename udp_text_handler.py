@@ -4,7 +4,9 @@ import os
 
 def parse_data_files_string_create_files(responses_string):
     if not responses_string:
-        print('no data in spiffs')
+        print('===========================================')
+        print('В SPIFFS отсутствуют какие-либо данные')
+        print('===========================================')
         return
     
     responses_string_list = responses_string.split('\n')
