@@ -177,37 +177,9 @@ def init_command_handler():
                             sat_id_str += '\n'
                         sat_ids_str += sat_id_str
 
-            # print(sat_ids_str)
             send_msg_over_udp(sat_ids_str)
             send_response_to_board('pc finish working with files')
-            # sended_bytes = 0
 
-            # # create list of command_names
-            # list_of_names = []
-
-            # # wait_response_from_board(serial_port, 'wait signal that board ready to read data')
-
-            # send_response_to_board(serial_port, 'signal to board that it can read sended data')
-
-            # with open(names.request_options_file_path, 'r') as file_pass:
-            #     for line in file_pass:
-            #         if not line in ['\n', '\r\n'] and not line.startswith('//'):
-            #             sat_id = line.split('=')[1]
-
-            #             if not sat_id.endswith('\n'):
-            #                 sat_id += '\n'
-
-            #             data_bytes_by_file_name = serial_port.write(sat_id.encode())
-            #             list_of_names.append(sat_id)
-            #             sended_bytes += data_bytes_by_file_name
-
-            # print("data: %s sent, size: %i bytes"%(list_of_names, sended_bytes))
-
-
-            # serial_port.reset_output_buffer()
-            # serial_port.cancel_write()
-
-            # send_response_to_board(serial_port, 'finish sending list of satellites')
             wait_response_from_board(event_board_finish_action)
         
         elif(command == command_get_spiffs_info):
