@@ -145,8 +145,8 @@ def init_command_handler():
 
         elif(command == command_clear_all_spiffs):
             send_command_to_board('command4')
-            wait_response_from_board(event_udp_board_get_command)
             print('проводится очистика всех файлов в spiffs . . .')
+            wait_response_from_board(event_udp_board_get_command)
             wait_response_from_board(event_board_finish_action)
 
         elif(command == command_clear_spiffs):
