@@ -147,20 +147,10 @@ def init_command_handler():
                 file_buffer += 'END_FILE\n'
                 data_files_string += file_buffer
 
-            #     # TODO Бывает ошибка, когда send_response_to_board почему-то не попадает на файл
-
                 send_response_to_board('pc can read next file')
 
             send_response_to_board('finish working with files')
 
-            # spiffs_max_files = 15
-            # spiffs_max_file_size = 5512
-
-            # # get string with responses data from board
-            # print('Waiting responses from port %i'(udp_handler.PC_PORT))
-            # data_files_string = udp_handler.pc_socket.recvfrom(spiffs_max_files * spiffs_max_file_size)
-
-            # parse string of responses from board to corresponding files
             udp_text_handler.parse_data_files_string_create_files(data_files_string)
 
             wait_response_from_board(event_board_finish_action)
@@ -442,37 +432,6 @@ def send_file_over_udp(file_path):
     print('(test print) data from file:\n====\n%s\n====\n'%(file_data_string))
 
     send_msg_over_udp(file_data_string)
-
-    # send_response_to_board('ready to send file')
-
-    # sent_bytes_test = udp_handler.board_socket.sendto('START_FILE'.encode(), udp_handler.board_socket_pair)
-    # print('START_FILE sent, size %i bytes'%(sent_bytes_test))
-
-    # wait_response_from_board('board start getting file chunks')
-
-    # sent_package_size = 0
-    # file_data_length = len(file_data_string)
-    # start_chunk_index = 0 
-    # while(file_data_length > 0):
-    #     end_chunk_index = start_chunk_index + 512
-    #     if end_chunk_index > len(file_data_string):
-    #         end_chunk_index = len(file_data_string)
-    #     data_chunk_string = file_data_string[start_chunk_index:end_chunk_index]
-    #     start_chunk_index = end_chunk_index
-
-    #     sent_bytes_by_chunk = udp_handler.board_socket.sendto(data_chunk_string.encode(), udp_handler.board_socket_pair)
-    #     file_data_length -= sent_bytes_by_chunk
-    #     sent_package_size += sent_bytes_by_chunk
-
-    #     wait_response_from_board('wait info about reading new chunk')
-
-    # udp_handler.board_socket.sendto('END_FILE'.encode(), udp_handler.board_socket_pair)
-
-    # print('message sent, size: %i bytes'%(sent_package_size))
-
-# TODO подумать сделать ли send_file -> send_msg (если сделаю - можно сделать так же в железе)
-# def send_message_over_udp(msg_buf):
-
 
 def send_response_to_board(send_event):
     # time.sleep(10)
