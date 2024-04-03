@@ -207,70 +207,59 @@ def init_command_handler():
             wait_response_from_board(event_board_get_command)
             send_response_to_board("ready to get info about free space in spiffs")
 
-            files_sized_in_pc = 0
-
             # get info about spiffs size 
-            free_space_string, addr = udp_handler.pc_socket.recvfrom(128)
-            print('\ngot info about free space from {0}:{1}\n'.format(addr[0], addr[1]))
+            spiffs_space_str = receive_msg_over_udp()
 
-            # free_space_size = int(free_space_string.decode().split('=')[1].strip('\n'))
+            # free_space_str format: 'total=%i\nused=%i\n' 
+            total_value      = int(spiffs_space_str.split('\n')[0].split('=')[1])
+            used_value       = int(spiffs_space_str.split('\n')[1].split('=')[1])
+            free_space_value = total_value - used_value
 
-            # continue working only if board finished sending first part of spiffs statistics
             wait_response_from_board("wait when board finish sending general spiffs info")
-
-            # send signal to board that we are ready to read informations about files
             send_response_to_board("ready to read information about files")
 
             # Реализовать отправку собщений, которое затем можно интегрировать в отправку файлов, но тогад нужно сделать такое и на плате
             print('read info about files')
-            udp_handler.pc_socket.recvfrom(512)
-            # print(spiffs_files_info)
+            spiffs_files_info = receive_msg_over_udp()
 
-            # # parse info values
-            # spiffs_info_values = spiffs_general_info[spiffs_general_info.index(' ') + 1:spiffs_general_info.index('\n')]
-            # spiffs_info_splitted_list = spiffs_info_values.split(' ')
-            # total_value = int(spiffs_info_splitted_list[0].split('=')[1])
-            # used_value  = int(spiffs_info_splitted_list[1].split('=')[1])
-
-            # free_space_size  =  total_value - used_value
-
-            # for file in os.listdir(names.commands_dir_path):
-            #     file_path = names.commands_dir_path + '/' + file
-            #     files_sized_in_pc += os.path.getsize(file_path)
+            files_sized_in_pc = 0
+            for file in os.listdir(names.commands_dir_path):
+                file_path = names.commands_dir_path + '/' + file
+                files_sized_in_pc += os.path.getsize(file_path)
             
-            # for file in os.listdir(names.responses_dir_path):
-            #     file_path = names.responses_dir_path + '/' + file
-            #     files_sized_in_pc += os.path.getsize(file_path)
+            for file in os.listdir(names.responses_dir_path):
+                file_path = names.responses_dir_path + '/' + file
+                files_sized_in_pc += os.path.getsize(file_path)
             
-            # if free_space_size < files_sized_in_pc:
-            #     print('ОСТОРОЖНО! %i байт в папках %s и %s не поместятся в свободное пространство из %i байт в spiffs'%(
-            #         files_sized_in_pc,
-            #         names.commands_dir_name,
-            #         names.responses_dir_name,
-            #         free_space_size
-            #     ))
-            #     return
-            # else:
-            #     print(text_border_top)
-            #     print('При отправке файлов будет записано %i байт в spiffs, свободное место есть'%(
-            #         files_sized_in_pc), end='\n\n')
+            if free_space_value < files_sized_in_pc:
+                print('ОСТОРОЖНО! %i байт в папках %s и %s не поместятся в свободное пространство из %i байт в spiffs'%(
+                    files_sized_in_pc,
+                    names.commands_dir_name,
+                    names.responses_dir_name,
+                    free_space_value
+                ))
+                return
+            else:
+                print(text_border_top)
+                print('При отправке файлов будет записано %i байт в spiffs, свободное место есть'%(
+                    files_sized_in_pc), end='\n\n')
 
-            # print('Статистика по spiffs:')
-            # print('Использовано места (байт): {:>}'.format(str(used_value)))
-            # print('Всего места в spiffs (байт): {:>}'.format(str(total_value)))
-            # print('Осталось свободного места (байт): {:>}'.format(str(free_space_size)))
+            print('Статистика по spiffs:')
+            print('Использовано места (байт): {:>}'.format(str(used_value)))
+            print('Всего места в spiffs (байт): {:>}'.format(str(total_value)))
+            print('Осталось свободного места (байт): {:>}'.format(str(free_space_value)))
 
-            # print('\nИнформация по каждому файлу в spiffs (размер в байтах):')
+            print('\nИнформация по каждому файлу в spiffs (размер в байтах):')
 
-            # if spiffs_files_info:
-            #     for file_info_binary in spiffs_files_info:
-            #         file_info_decoded = file_info_binary.decode()
-            #         print(file_info_decoded.strip('\n'))
-            # else:
-            #     print('SPIFFS пуст! Не найдена информация ни по одному из файлов')
+            spiffs_files_info_lines = spiffs_files_info.split('\n')
+            if spiffs_files_info:
+                for info_line in spiffs_files_info_lines:
+                    print(info_line)
+            else:
+                print('SPIFFS пуст! Не найдена информация ни по одному из файлов')
 
-            # # print('\nКонец статистики', end='\n')
-            # print(text_border_bottom)
+            # print('\nКонец статистики', end='\n')
+            print(text_border_bottom)
 
             send_response_to_board("send signal that we finished working with files")
 
@@ -302,12 +291,10 @@ def init_command_handler():
             wait_response_from_board(event_board_get_command)
             send_response_to_board("ready to get info about free space in spiffs")
             # read size that we already have (and check if there is enough space in spiffs for data)
-            # free_space_line = serial_port.readline()
-            free_space_string, addr = udp_handler.pc_socket.recvfrom(128)
-            print('\ngot info about free space from\n')
-            print(addr)
+            
+            spiffs_space_str = receive_msg_over_udp()
 
-            free_space_size = int(free_space_string.decode().split('=')[1].strip('\n'))
+            spiffs_info_sizes = int(spiffs_space_str.split('=')[1].strip('\n'))
 
             # compare sizes
             pc_files_size = 0
@@ -319,7 +306,7 @@ def init_command_handler():
                 file_path = names.commands_dir_path + '/' + command_file_txt
                 pc_files_size += os.path.getsize(file_path)
 
-            if free_space_size < pc_files_size:
+            if spiffs_info_sizes < pc_files_size:
                 print('ОШИБКА! Недостаточно места в spiffs для записи, освободите его перед записью файлов')
                 wait_response_from_board('wait until board ends performs command')
                 return
@@ -359,7 +346,7 @@ def receive_file_over_udp():
 def receive_msg_over_udp():
     wait_response_from_board('wait signal from board that it ready to send message')
 
-    empty_data_buffer = ''
+    data_buffer_str = ''
 
     start_msg_buffer_binary = b''
     while(start_msg_buffer_binary.decode() != 'START_MSG'):
@@ -377,13 +364,13 @@ def receive_msg_over_udp():
             print('data chunk finished')
             break
 
-        empty_data_buffer += data_chunk
+        data_buffer_str += data_chunk
         used_bytes += len(data_chunk)
 
         send_response_to_board('ready to get new chunk')
 
     print('finish handle message with size %i'%(used_bytes))
-    return empty_data_buffer
+    return data_buffer_str
 
 def send_msg_over_udp(msg_buf_str):
     send_response_to_board('ready to send message')
