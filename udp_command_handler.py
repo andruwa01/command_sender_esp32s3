@@ -96,15 +96,6 @@ def init_command_handler():
             old_options_name = names.request_options_file_name_txt
             file_options_name_txt = str(input('Имя файла настроек (с .txt): '))
             names.update_names(file_options_name_txt)
-
-            with open(names.request_options_file_path, 'r') as options_file:
-                sat_counter = 0
-                for line in options_file:
-                    if not line in ['\n', '\r\n']:
-                        sat_counter += 1
-            port_settings = serial_port.get_settings()
-            # change timeout value in settings of port to correctly read data when use realines() funciton
-            port_settings['timeout'] = sat_counter
             print('Файл с настройками был изменён с файла %s.txt\nна файл %s.txt'%(
                 old_options_name,
                 names.request_options_file_name_txt
@@ -309,12 +300,14 @@ def init_command_handler():
             wait_response_from_board(event_board_finish_action)
 
         elif(command == command_stop):
+            print(names.text_border_top)
             print('ПРОГРАММА ОСТАНОВЛЕНА . . .', end='\n\n')
+            print(names.text_border_bottom)
             return
         else:
-            print()
+            print(names.text_border_top)
             print("НЕВЕРНАЯ КОМАНДА!")
-            print()
+            print(names.text_border_bottom)
 
 def receive_file_over_udp():
     file_data = receive_msg_over_udp()

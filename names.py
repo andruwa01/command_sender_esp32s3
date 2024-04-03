@@ -108,9 +108,6 @@ def update_names(request_options_file_name_new):
         satellites_dir_path,
         commands_dir_name
     )
-
-    # responses_board_dir_path = './' + satellites_dir_name + '/' + responses_board_dir_name
-
     responses_board_dir_path = '%s/%s'%(
         satellites_dir_path,
         responses_board_dir_name
