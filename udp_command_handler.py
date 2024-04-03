@@ -163,43 +163,52 @@ def init_command_handler():
             wait_response_from_board(serial_port, 'spiffs files erased')
 
         elif(command == command_clear_spiffs):
-            command_binary = 'clean spiffs'.encode()
-            number_of_bytes = serial_port.write(command_binary)
-            print('command %s sent, size: %i bytes'%(command_binary, number_of_bytes))
+            send_command_to_board('command3')
+            wait_response_from_board(event_board_get_command)
 
-            wait_response_from_board(serial_port, 'board get command')
+            wait_response_from_board('board ready to get list of satellites')
 
-            wait_response_from_board(serial_port, 'board ready to wait list of satellites')
+            sat_ids_str = ''
+            with open(names.request_options_file_path, 'r') as options_file:
+                for option in options_file:
+                    if not option in ['\n', '\r\n'] and not option.startswith('//'):
+                        sat_id_str = option.split('=')[1]
+                        if not sat_id_str.endswith('\n'):
+                            sat_id_str += '\n'
+                        sat_ids_str += sat_id_str
 
-            sended_bytes = 0
+            # print(sat_ids_str)
+            send_msg_over_udp(sat_ids_str)
 
-            # create list of command_names
-            list_of_names = []
+            # sended_bytes = 0
 
-            # wait_response_from_board(serial_port, 'wait signal that board ready to read data')
+            # # create list of command_names
+            # list_of_names = []
 
-            send_response_to_board(serial_port, 'signal to board that it can read sended data')
+            # # wait_response_from_board(serial_port, 'wait signal that board ready to read data')
 
-            with open(names.request_options_file_path, 'r') as file_pass:
-                for line in file_pass:
-                    if not line in ['\n', '\r\n'] and not line.startswith('//'):
-                        sat_id = line.split('=')[1]
+            # send_response_to_board(serial_port, 'signal to board that it can read sended data')
 
-                        if not sat_id.endswith('\n'):
-                            sat_id += '\n'
+            # with open(names.request_options_file_path, 'r') as file_pass:
+            #     for line in file_pass:
+            #         if not line in ['\n', '\r\n'] and not line.startswith('//'):
+            #             sat_id = line.split('=')[1]
 
-                        data_bytes_by_file_name = serial_port.write(sat_id.encode())
-                        list_of_names.append(sat_id)
-                        sended_bytes += data_bytes_by_file_name
+            #             if not sat_id.endswith('\n'):
+            #                 sat_id += '\n'
 
-            print("data: %s sent, size: %i bytes"%(list_of_names, sended_bytes))
+            #             data_bytes_by_file_name = serial_port.write(sat_id.encode())
+            #             list_of_names.append(sat_id)
+            #             sended_bytes += data_bytes_by_file_name
+
+            # print("data: %s sent, size: %i bytes"%(list_of_names, sended_bytes))
 
 
-            serial_port.reset_output_buffer()
-            serial_port.cancel_write()
+            # serial_port.reset_output_buffer()
+            # serial_port.cancel_write()
 
             # send_response_to_board(serial_port, 'finish sending list of satellites')
-            wait_response_from_board(serial_port, event_board_finish_action)
+            wait_response_from_board(event_board_finish_action)
         
         elif(command == command_get_spiffs_info):
             send_command_to_board('command2')
