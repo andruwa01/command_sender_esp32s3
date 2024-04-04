@@ -86,7 +86,6 @@ def update_names(request_options_file_name_new):
     if(request_options_file_name_new == ''):
         print('Недопустимое имя файла')
         return
-    
     global request_options_file_name_txt
     global request_options_file_path
     global responses_dir_path

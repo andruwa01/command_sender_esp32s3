@@ -246,6 +246,7 @@ def init_command_handler():
                         param_name  = parsed_line_list[0]
                         param_value_float = float(parsed_line_list[1])
                         req_params_dict[param_name] = param_value_float
+
             req_params_dict['api_key'] = api_key
 
             print('Текущие настройки параметров для https запросов:')
